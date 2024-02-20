@@ -17,6 +17,9 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-// Dalam routes/web.php
 
-$router->post('/login', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@login']);
+$router->group(['prefix' => 'api'], function () use ($router) {
+    $router->post('/login', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@login']);
+    $router->post('/register', ['uses' => 'Auth\RegisterController@register']); // Route untuk registrasi
+    $router->get('/check-token-data', ['uses' => 'Token\TokenController@checkTokenData']);
+});

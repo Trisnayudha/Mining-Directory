@@ -1,4 +1,6 @@
 <?php
+// Tambahkan ini di bagian atas file
+use Illuminate\Support\Facades\Facade;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -26,6 +28,8 @@ $app = new Laravel\Lumen\Application(
 $app->withFacades();
 $app->configure('swagger-lume');
 $app->withEloquent();
+// Tambahkan ini sebelum mengembalikan aplikasi
+$app->configure('jwt');
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +80,9 @@ $app->routeMiddleware([
     'throttle' => App\Http\Middleware\ThrottleLogins::class,
 ]);
 
-
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
+]);
 
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
@@ -99,7 +105,13 @@ $app->routeMiddleware([
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(\SwaggerLume\ServiceProvider::class);
 $app->register(Laravel\Tinker\TinkerServiceProvider::class);
+// Tambahkan ini di bagian bawah file
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 
+if (!class_exists('JWTAuth')) {
+    class_alias(Tymon\JWTAuth\Facades\JWTAuth::class, 'JWTAuth');
+    class_alias(Tymon\JWTAuth\Facades\JWTFactory::class, 'JWTFactory');
+}
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -20,19 +23,30 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Validasi request
-        $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+        try {
+            // Validasi request
+            $this->validate($request, [
+                'email' => 'required|email',
+                'password' => 'required'
+            ]);
 
-        $user = $this->userRepository->findByEmail($request->email);
+            // Attempt to authenticate the user
+            if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
+                // Return error response if authentication fails
+                return $this->sendResponse('Unauthorized', null, 401);
+            }
 
-        if (!$user || !app('hash')->check($request->password, $user->password)) {
-            return $this->sendResponse('Unauthorized', null, 401); // Untuk error
+            // Get the authenticated user from the JWTAuth facade
+            $user = JWTAuth::user();
+
+            // Return success response along with the token and user data
+            return $this->sendResponse('Login successful', ['token' => $token, 'user' => $user], 200);
+        } catch (ValidationException $e) {
+            // Return validation error response
+            return $this->sendResponse('Validation Error', $e->validator->errors(), 422);
+        } catch (\Exception $e) {
+            // Return generic error response
+            return $this->sendResponse('An error occurred', null, 500);
         }
-
-        // Jika login berhasil, kirim response sukses
-        return $this->sendResponse('Login successful', ['user' => $user], 200); // Untuk sukses
     }
 }

@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -17,5 +18,10 @@ class UserRepository implements UserRepositoryInterface
     public function findByEmail($email)
     {
         return $this->model->where('email', $email)->first();
+    }
+
+    public function createUsers(array $data)
+    {
+        return User::create($data);
     }
 }
