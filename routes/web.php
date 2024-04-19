@@ -23,3 +23,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('/register', ['uses' => 'Auth\RegisterController@register']); // Route untuk registrasi
     $router->get('/check-token-data', ['uses' => 'Token\TokenController@checkTokenData']);
 });
+
+$router->get('home/carousel', ['uses' => 'HomeController@carousel']);
+$router->get('home/statistic', ['uses' => 'HomeController@statistic']);
+$router->get('home/category', ['uses' => 'HomeController@category']);
