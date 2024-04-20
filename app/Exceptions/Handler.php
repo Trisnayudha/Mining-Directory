@@ -8,6 +8,8 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Http\JsonResponse;
 
 class Handler extends ExceptionHandler
 {
@@ -49,12 +51,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof ValidationException) {
-            return response()->json([
-                'status' => 422, // Status HTTP untuk Unprocessable Entity
-                'message' => 'Validation errors',
-                'payload' => $exception->validator->errors()
-            ], 422);
+        if ($exception instanceof NotFoundHttpException) {
+            return new JsonResponse([
+                'status' => 404,
+                'message' => 'Route Not Found',
+                'payload' => null
+            ], JsonResponse::HTTP_NOT_FOUND);
         }
 
         return parent::render($request, $exception);
