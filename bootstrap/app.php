@@ -107,6 +107,7 @@ $app->register(\SwaggerLume\ServiceProvider::class);
 $app->register(Laravel\Tinker\TinkerServiceProvider::class);
 // Tambahkan ini di bagian bawah file
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
 
 if (!class_exists('JWTAuth')) {
     class_alias(Tymon\JWTAuth\Facades\JWTAuth::class, 'JWTAuth');
@@ -126,6 +127,10 @@ if (!class_exists('JWTAuth')) {
 | can respond to, as well as the controllers that may handle them.
 |
 */
+$app->configure('cors');
+$app->middleware([
+    Fruitcake\Cors\HandleCors::class,
+]);
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
