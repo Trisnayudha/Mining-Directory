@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -97,5 +98,29 @@ class HomeController extends Controller
         ];
 
         return $this->sendResponse('Successfully retrieved category data', $data, 200);
+    }
+
+    public function company()
+    {
+        $data = DB::table('company')->where('package', 'platinum')->select('package', 'image', 'company_name', 'location', 'category_company', 'description', 'video', 'slug')->take(8)->get();
+        return $this->sendResponse('Successfully show company data', $data, 200);
+    }
+
+    public function product()
+    {
+        $data = DB::table('products')->join('company', 'company.id', 'products.company_id')->select('products.*', 'company.company_name')->take(4)->get();
+        return $this->sendResponse('Successfully show products data', $data, 200);
+    }
+
+    public function video()
+    {
+        $data = DB::table('videos')->join('company', 'company.id', 'videos.company_id')->select('videos.*', 'company.company_name')->take(4)->get();
+        return $this->sendResponse('Successfully show videos data', $data, 200);
+    }
+
+    public function news()
+    {
+        $data = DB::table('news')->join('company', 'company.id', 'news.company_id')->select('news.*', 'company.company_name')->take(5)->get();
+        return $this->sendResponse('Successfully show news data', $data, 200);
     }
 }

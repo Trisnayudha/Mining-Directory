@@ -27,3 +27,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 $router->get('home/carousel', ['uses' => 'HomeController@carousel']);
 $router->get('home/statistic', ['uses' => 'HomeController@statistic']);
 $router->get('home/category', ['uses' => 'HomeController@category']);
+$router->get('home/company', ['uses' => 'HomeController@company']);
+$router->get('home/product', ['uses' => 'HomeController@product']);
+$router->get('home/video', ['uses' => 'HomeController@video']);
+$router->get('home/news', ['uses' => 'HomeController@news']);
