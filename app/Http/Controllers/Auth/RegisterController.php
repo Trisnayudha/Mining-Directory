@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\ResponseHelper;
+use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -22,44 +26,54 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        DB::beginTransaction(); // Mulai transaksi
         try {
             // Validasi data input
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|unique:users,email',
-                'password' => 'required|string|min:6',
-                'prefix_phone' => 'required|string|max:5',
-                'phone' => 'required|string|max:20',
-                'prefix_company' => 'required|string|max:5',
-                'company_name' => 'required|string|max:255',
-                'job_title' => 'required|string|max:255',
+            $this->validate($request, [
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'password' => 'required',
+                'phone' => 'required'
             ]);
 
-            if ($validator->fails()) {
-                return $this->sendResponse('Validation Error', $validator->errors(), 422);
-            }
-
-            // Hash the password
-            $hashedPassword = Hash::make($request->input('password'));
-
-            // Create the user
-            $user = $this->userRepository->createUsers([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'password' => $hashedPassword,
-                'prefix_phone' => $request->input('prefix_phone'),
-                'phone' => $request->input('phone'),
-                'prefix_company' => $request->input('prefix_company'),
-                'company_name' => $request->input('company_name'),
-                'job_title' => $request->input('job_title'),
-                'tick_marketing' => $request->input('tick_marketing'),
-                'tick_explore' => $request->input('tick_explore'),
+            $user = new User([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => app('hash')->make($request->password),
+                'verification_token' => Str::random(60),
+                'marketing' => $request->marketing,
+                'explore' => $request->explore
             ]);
+            $user->save();
 
-            return $this->sendResponse('User registered successfully', $user, 201);
+            $url = url('/api/verify/' . $user->verification_token);
+
+            // Kirim email dengan URL verifikasi
+            Mail::raw("Silahkan klik pada link ini untuk verifikasi akun anda: $url", function ($message) use ($user) {
+                $message->to($user->email)->subject('Verifikasi Email Anda');
+            });
+            DB::commit(); // Commit transaksi jika tidak ada masalah
+            return $this->sendResponse('User registered successfully', null, 201);
         } catch (\Exception $e) {
             // Return generic error response
+            DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
             return $this->sendResponse('An error occurred', ['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function verify($token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Token tidak valid.'], 404);
+        }
+
+        $user->is_verified = true;
+        $user->verification_token = null;
+        $user->save();
+
+        return $this->sendResponse('Akun telah terverifikasi', null, 200);
     }
 }

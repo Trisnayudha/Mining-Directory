@@ -19,8 +19,11 @@ $router->get('/', function () use ($router) {
 
 
 $router->group(['prefix' => 'api'], function () use ($router) {
-    $router->post('/login', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@login']);
+    $router->post('/login/password', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@loginPassword']);
+    $router->post('/request/OTP', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@requestOtp']);
+    $router->post('/login/verify/OTP', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@verifyOtp']);
     $router->post('/register', ['uses' => 'Auth\RegisterController@register']); // Route untuk registrasi
+    $router->get('/verify/{token}', ['uses' => 'Auth\RegisterController@verify']);
     $router->get('/check-token-data', ['uses' => 'Token\TokenController@checkTokenData']);
 });
 
