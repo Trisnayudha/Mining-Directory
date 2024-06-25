@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
+use App\Models\Company;
+use App\Repositories\Eloquent\CategoryRepository;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -13,10 +15,12 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    protected $category;
+    public function __construct(CategoryRepository $category)
     {
-        //
+        $this->category = $category;
     }
+
     public function carousel()
     {
         $data = [
@@ -58,51 +62,19 @@ class HomeController extends Controller
 
     public function category()
     {
-        $data = [
-            [
-                'title' => 'Batteries',
-                'image' => 'https://dummyimage.com/300x200/000/fff&text=Batteries',
-                'slug'  => 'batteries-category',
-                'items' => 120,
-            ],
-            [
-                'title' => 'Assay Equipment',
-                'image' => 'https://dummyimage.com/300x200/111/fff&text=Assay+Equipment',
-                'slug'  => 'assay-equipment-category',
-                'items' => 120,
-            ],
-            [
-                'title' => 'Bucket Wheel Excavators',
-                'image' => 'https://dummyimage.com/300x200/222/fff&text=Bucket+Wheel+Excavators',
-                'slug'  => 'bucket-wheel-excavators-category',
-                'items' => 120,
-            ],
-            [
-                'title' => 'Environment Management',
-                'image' => 'https://dummyimage.com/300x200/333/fff&text=Environment+Management',
-                'slug'  => 'environment-management-category',
-                'items' => 120,
-            ],
-            [
-                'title' => 'Construction Equipment',
-                'image' => 'https://dummyimage.com/300x200/444/fff&text=Construction+Equipment',
-                'slug'  => 'construction-equipment-category',
-                'items' => 120,
-            ],
-            [
-                'title' => 'Engineering Service',
-                'image' => 'https://dummyimage.com/300x200/555/fff&text=Engineering+Service',
-                'slug'  => 'engineering-service-category',
-                'items' => 120,
-            ],
-        ];
+        $data = $this->category->findAll();
+        return $this->sendResponse('Successfully retrieved category data', $data, 200);
+    }
 
+    public function popularCategory()
+    {
+        $data = $this->category->popular();
         return $this->sendResponse('Successfully retrieved category data', $data, 200);
     }
 
     public function company()
     {
-        $data = DB::table('company')->where('package', 'platinum')->select('package', 'image', 'company_name', 'location', 'category_company', 'description', 'video', 'slug')->take(8)->get();
+        $data = Company::where('package', 'platinum')->select('package', 'image', 'company_name', 'location', 'category_company', 'description', 'video', 'slug')->take(8)->get();
         return $this->sendResponse('Successfully show company data', $data, 200);
     }
 
