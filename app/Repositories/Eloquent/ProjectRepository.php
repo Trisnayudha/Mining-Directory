@@ -61,4 +61,35 @@ class ProjectRepository implements ProjectRepositoryInterface
 
         return $results;
     }
+
+    public function detail($slug)
+    {
+        $project = $this->model->newQuery()
+            ->join('company', 'company.id', 'projects.company_id')
+            ->where('projects.slug', $slug)
+            ->select(
+                'projects.id',
+                'company.company_name',
+                'company.package',
+                'company.slug as company_slug',
+                'projects.title',
+                'projects.views',
+                'projects.download',
+                'projects.slug',
+                'projects.description',
+                'projects.file',
+                'projects.description',
+            )->with(['projectCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
+            ->first();
+
+        // Mengambil nama kategori
+        if ($project && $project->projectCategories->isNotEmpty()) {
+            $project->category_name = $project->projectCategories->first()->mdCategory->name;
+            unset($project->projectCategories); // Opsional: Hapus data projectCategories yang tidak perlu
+        }
+
+        return $project;
+    }
 }

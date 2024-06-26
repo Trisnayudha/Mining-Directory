@@ -28,4 +28,8 @@ class Project extends Model
         'location'
 
     ];
+    public function projectCategories()
+    {
+        return $this->hasMany(ProjectCategory::class, 'project_id', 'id');
+    }
 }
