@@ -7,4 +7,5 @@ namespace App\Repositories\Contracts;
 interface VideosRepositoryInterface
 {
     public function findSearch($request);
+    public function detail($slug);
 }

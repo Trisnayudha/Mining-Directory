@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
+use App\Repositories\Eloquent\VideosRepository;
 
 class VideoController extends Controller
 {
@@ -12,13 +13,15 @@ class VideoController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    protected $videos;
+    public function __construct(VideosRepository $videos)
     {
-        //
+        $this->videos = $videos;
     }
 
-    public function detail()
+    public function detail($slug)
     {
-        //
+        $data = $this->videos->detail($slug);
+        return $this->sendResponse('Successfully show data', $data, 200);
     }
 }

@@ -36,8 +36,9 @@ $router->get('home/product', ['uses' => 'HomeController@product']);
 $router->get('home/video', ['uses' => 'HomeController@video']);
 $router->get('home/news', ['uses' => 'HomeController@news']);
 
-$router->get('search', ['uses' => 'SearchController@index']);
 
+//Search
+$router->get('search', ['uses' => 'SearchController@index']);
 
 //Product
 $router->get('products/{slug}', ['uses' => 'ProductController@detail']);
@@ -48,12 +49,7 @@ $router->get('media-resource/{slug}', ['uses' => 'MediaResourceController@detail
 //Project
 $router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
 
-
+//Videos
+$router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
 
 //News
-
-
-//Videos
-
-
-//Search

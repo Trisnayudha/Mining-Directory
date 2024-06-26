@@ -80,6 +80,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'company.company_name',
                 'company.package',
                 'company.slug as company_slug',
+                'company.image as company_image',
                 'products.title',
                 'products.views',
                 'products.download',

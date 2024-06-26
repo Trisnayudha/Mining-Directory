@@ -60,4 +60,35 @@ class VideosRepository implements VideosRepositoryInterface
 
         return $results;
     }
+
+    public function detail($slug)
+    {
+        $video = $this->model->newQuery()
+            ->join('company', 'company.id', 'videos.company_id')
+            ->where('videos.slug', $slug)
+            ->select(
+                'videos.id',
+                'company.company_name',
+                'company.slug as company_slug',
+                'company.package',
+                'company.image as company_image',
+                'videos.title',
+                'videos.slug',
+                'videos.asset',
+                'videos.views',
+                'videos.description',
+            )
+            ->with(['videoCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
+            ->first();
+
+        // Mengambil nama kategori
+        if ($video && $video->videoCategories->isNotEmpty()) {
+            $video->category_name = $video->videoCategories->first()->mdCategory->name;
+            unset($video->videoCategories); // Opsional: Hapus data videoCategories yang tidak perlu
+        }
+
+        return $video;
+    }
 }

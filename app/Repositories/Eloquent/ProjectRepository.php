@@ -72,6 +72,7 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'company.company_name',
                 'company.package',
                 'company.slug as company_slug',
+                'company.image as company_image',
                 'projects.title',
                 'projects.views',
                 'projects.download',

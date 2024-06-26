@@ -25,4 +25,8 @@ class Videos extends Model
         'download'
 
     ];
+    public function videoCategories()
+    {
+        return $this->hasMany(VideosCategory::class, 'videos_id', 'id');
+    }
 }
