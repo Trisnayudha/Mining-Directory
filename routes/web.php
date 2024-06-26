@@ -42,11 +42,12 @@ $router->get('search', ['uses' => 'SearchController@index']);
 //Product
 $router->get('products/{slug}', ['uses' => 'ProductController@detail']);
 
+//Media Resource
+$router->get('media-resource/{slug}', ['uses' => 'MediaResourceController@detail']);
 
 //Project
+$router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
 
-
-//Media Resource
 
 
 //News

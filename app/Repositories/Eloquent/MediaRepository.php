@@ -55,10 +55,39 @@ class MediaRepository implements MediaRepositoryInterface
             'media_resource.download',
             DB::raw('MIN(md_category_company.name) as category') // Get one category name
         ])
-            ->groupBy('media_resource.id', 'media_resource.title', 'media_resource.slug', 'media_resource.image', 'company.company_name', 'media_resource.views', 'company.package')
+            ->groupBy('media_resource.id', 'media_resource.title', 'media_resource.slug', 'media_resource.image', 'company.company_name', 'media_resource.views', 'media_resource.download', 'company.package')
             ->orderByRaw("FIELD(company.package, 'platinum', 'gold', 'silver')")
             ->paginate($paginate);
 
         return $results;
+    }
+
+    public function detail($slug)
+    {
+        $media = $this->model->newQuery()
+            ->join('company', 'company.id', 'media_resource.company_id')
+            ->where('media_resource.slug', $slug)
+            ->select(
+                'media_resource.id',
+                'company.company_name',
+                'company.package',
+                'company.slug as company_slug',
+                'media_resource.title',
+                'media_resource.views',
+                'media_resource.download',
+                'media_resource.description',
+                'media_resource.file',
+                'media_resource.image',
+            )->with(['mediaCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
+            ->first();
+
+        // Mengambil nama kategori
+        if ($media && $media->mediaCategories->isNotEmpty()) {
+            $media->category_name = $media->mediaCategories->first()->mdCategory->name;
+            unset($media->mediaCategories); // Opsional: Hapus data mediaCategories yang tidak perlu
+        }
+        return $media;
     }
 }

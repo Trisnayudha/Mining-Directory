@@ -27,4 +27,9 @@ class MediaResource extends Model
         'image'
 
     ];
+
+    public function mediaCategories()
+    {
+        return $this->hasMany(MediaCategory::class, 'media_resource_id', 'id');
+    }
 }

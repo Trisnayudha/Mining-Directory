@@ -7,4 +7,5 @@ namespace App\Repositories\Contracts;
 interface MediaRepositoryInterface
 {
     public function findSearch($request);
+    public function detail($slug);
 }

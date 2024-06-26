@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
+use App\Repositories\Eloquent\MediaRepository;
 
 class MediaResourceController extends Controller
 {
@@ -12,13 +13,15 @@ class MediaResourceController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    protected $media;
+    public function __construct(MediaRepository $media)
     {
-        //
+        $this->media = $media;
     }
 
-    public function detail()
+    public function detail($slug)
     {
-        //
+        $data = $this->media->detail($slug);
+        return $this->sendResponse('Successfully show data', $data, 200);
     }
 }
