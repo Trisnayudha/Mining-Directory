@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
 
-class CompanyController extends Controller
+class NewsController extends Controller
 {
     use ResponseHelper; // Gunakan trait di sini
     /**

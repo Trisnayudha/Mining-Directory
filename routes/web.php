@@ -40,6 +40,7 @@ $router->get('search', ['uses' => 'SearchController@index']);
 
 
 //Product
+$router->get('products/{slug}', ['uses' => 'ProductController@detail']);
 
 
 //Project

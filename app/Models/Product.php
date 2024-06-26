@@ -27,4 +27,13 @@ class Product extends Model
         'location',
 
     ];
+    // Relasi One-to-Many dengan ProductsAsset
+    public function products_asset()
+    {
+        return $this->hasMany(ProductAsset::class, 'product_id', 'id');
+    }
+    public function productCategories()
+    {
+        return $this->hasMany(ProductCategory::class, 'product_id', 'id');
+    }
 }

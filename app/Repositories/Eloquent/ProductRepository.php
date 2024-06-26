@@ -68,4 +68,41 @@ class ProductRepository implements ProductRepositoryInterface
 
         return $results;
     }
+
+
+    public function detail($slug)
+    {
+        $product = $this->model->newQuery()
+            ->join('company', 'company.id', '=', 'products.company_id')
+            ->where('products.slug', '=', $slug)
+            ->select(
+                'products.id', // Pastikan untuk memilih 'id' dari produk untuk relasi
+                'company.company_name',
+                'company.package',
+                'company.slug as company_slug',
+                'products.title',
+                'products.views',
+                'products.download',
+                'products.description',
+                'products.file'
+            )
+            ->with(['products_asset' => function ($query) {
+                $query->select('product_id', 'asset'); // Asumsi ada 'product_id' di 'products_asset'
+            }, 'productCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
+            ->first();
+
+        if ($product && $product->products_asset) {
+            $product->products_asset = $product->products_asset->pluck('asset');
+        }
+
+        // Mengambil nama kategori
+        if ($product && $product->productCategories->isNotEmpty()) {
+            $product->category_name = $product->productCategories->first()->mdCategory->name;
+            unset($product->productCategories); // Opsional: Hapus data productCategories yang tidak perlu
+        }
+
+        return $product;
+    }
 }
