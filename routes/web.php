@@ -53,3 +53,4 @@ $router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
 $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
 
 //News
+$router->get('news/{slug}', ['uses' => 'NewsController@detail']);

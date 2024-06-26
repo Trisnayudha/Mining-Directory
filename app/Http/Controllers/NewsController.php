@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
+use App\Repositories\Eloquent\NewsRepository;
 
 class NewsController extends Controller
 {
@@ -12,13 +13,15 @@ class NewsController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    protected $news;
+    public function __construct(NewsRepository $news)
     {
-        //
+        $this->news = $news;
     }
 
-    public function detail()
+    public function detail($slug)
     {
-        //
+        $data = $this->news->detail($slug);
+        return $this->sendResponse('Successfully show data', $data, 200);
     }
 }

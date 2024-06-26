@@ -61,4 +61,35 @@ class NewsRepository implements NewsRepositoryInterface
 
         return $results;
     }
+
+    public function detail($slug)
+    {
+        $news = $this->model->newQuery()
+            ->join('company', 'company.id', '=', 'news.company_id')
+            ->where('news.slug', $slug)
+            ->select(
+                'news.id',
+                'company.company_name',
+                'company.package',
+                'company.slug as company_slug',
+                'company.image as company_image',
+                'news.views',
+                'news.date_news',
+                'news.title',
+                'news.sub_title',
+                'news.slug',
+                'news.image',
+                'news.description'
+            )->with(['newsCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
+            ->first();
+
+        // Mengambil nama kategori
+        if ($news && $news->newsCategories->isNotEmpty()) {
+            $news->category_name = $news->newsCategories->first()->mdCategory->name;
+            unset($news->newsCategories); // Opsional: Hapus data projectCategories yang tidak perlu
+        }
+        return $news;
+    }
 }
