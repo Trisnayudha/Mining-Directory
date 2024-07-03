@@ -26,7 +26,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'phone',
         'marketing',
         'explore',
-        'verification_token'
+        'verification_token',
+        'job_title',
+        'company_name',
+        'image'
     ];
 
     /**

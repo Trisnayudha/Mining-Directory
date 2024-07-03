@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class Authenticate
 {
@@ -33,12 +35,19 @@ class Authenticate
      * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+        } catch (Exception $e) {
+            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                return response()->json(['status' => 'Token is Invalid']);
+            } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                return response()->json(['status' => 'Token is Expired']);
+            } else {
+                return response()->json(['status' => 'Authorization Token not found']);
+            }
         }
-
         return $next($request);
     }
 }

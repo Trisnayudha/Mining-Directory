@@ -54,3 +54,12 @@ $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
 
 //News
 $router->get('news/{slug}', ['uses' => 'NewsController@detail']);
+
+//Midleware Token
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    //Profile
+    $router->get('profile', ['uses' => 'UserController@detail']);
+    $router->post('profile/edit', ['uses' => 'UserController@editProfile']);
+    $router->post('profile/edit/detail', ['uses' => 'UserController@editProfileDetail']);
+});
+$router->post('check-email', ['uses' => 'UserController@checkEmail']);

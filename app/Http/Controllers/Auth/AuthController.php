@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTFactory;
 
 class AuthController extends Controller
 {
@@ -44,8 +45,11 @@ class AuthController extends Controller
             // Get the authenticated user from the JWTAuth facade
             $user = JWTAuth::user();
 
-            // Return success response along with the token and user data
-            return $this->sendResponse('Login successful', ['token' => $token, 'user' => $user], 200);
+            // Create a custom token with user's role
+            $token = JWTAuth::claims(['role' => 'users'])->attempt($request->only('email', 'password'));
+
+            // Return success response along with the token
+            return $this->sendResponse('Login successful', ['token' => $token], 200);
         } catch (ValidationException $e) {
             // Return validation error response
             return $this->sendResponse('Validation Error', $e->validator->errors(), 422);
@@ -54,6 +58,7 @@ class AuthController extends Controller
             return $this->sendResponse('An error occurred', null, 500);
         }
     }
+
 
     public function requestOtp(Request $request)
     {
