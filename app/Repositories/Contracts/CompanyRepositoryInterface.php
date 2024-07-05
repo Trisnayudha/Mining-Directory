@@ -8,5 +8,6 @@ interface CompanyRepositoryInterface
 {
     public function findList($limit);
     public function findDetail($slug);
+    public function findDetailSection($slug, $section);
     public function findSearch($search);
 }

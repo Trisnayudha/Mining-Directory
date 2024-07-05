@@ -18,18 +18,23 @@ class MediaRepository implements MediaRepositoryInterface
 
     public function findSearch($request)
     {
+
         $search = $request->search;
         $category_name = $request->category_id; // Assume this is the name of the category
         $sub_category_name = $request->sub_category_id; // Assume this is the name of the sub-category
         $paginate = $request->paginate ?? 12; // Default to 12 if not provided
-
         $query = $this->model->newQuery();
+        $slug = $request->slug;
         // Join with category and subcategory tables
         $query->join('company', 'company.id', '=', 'media_resource.company_id')
             ->leftJoin('media_resource_category_list', 'media_resource_category_list.media_resource_id', '=', 'media_resource.id')
             ->leftJoin('md_category_company', 'media_resource_category_list.category_id', '=', 'md_category_company.id')
             ->leftJoin('media_resource_sub_category_list', 'media_resource_sub_category_list.media_resource_id', '=', 'media_resource.id')
             ->leftJoin('md_sub_category_company', 'media_resource_sub_category_list.sub_category_id', '=', 'md_sub_category_company.id');
+
+        if (!empty($slug)) {
+            $query->where('company.slug', $slug);
+        }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

@@ -36,4 +36,8 @@ class Company extends Model
         'value_3',
         'verify_company',
     ];
+
+    protected $hidden = [
+        'password',
+    ];
 }

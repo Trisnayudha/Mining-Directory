@@ -22,6 +22,7 @@ class ProductRepository implements ProductRepositoryInterface
         $category_name = $request->category_id; // Assume this is the name of the category
         $sub_category_name = $request->sub_category_id; // Assume this is the name of the sub-category
         $paginate = $request->paginate ?? 12; // Default to 12 if not provided
+        $slug = $request->slug;
 
         $query = $this->model->newQuery();
         // Join with category and subcategory tables
@@ -34,6 +35,10 @@ class ProductRepository implements ProductRepositoryInterface
             ->leftJoin('md_category_company', 'products_category_list.category_id', '=', 'md_category_company.id')
             ->leftJoin('products_sub_category_list', 'products_sub_category_list.product_id', '=', 'products.id')
             ->leftJoin('md_sub_category_company', 'products_sub_category_list.sub_category_id', '=', 'md_sub_category_company.id');
+
+        if (!empty($slug)) {
+            $query->where('company.slug', $slug);
+        }
 
         // Search for title and description
         if (!empty($search)) {

@@ -5,16 +5,33 @@ namespace App\Repositories\Eloquent;
 use App\Models\Company;
 use App\Models\User;
 use App\Repositories\Contracts\CompanyRepositoryInterface;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CompanyRepository implements CompanyRepositoryInterface
 {
     protected $model;
-
-    public function __construct(Company $model)
-    {
+    protected $media;
+    protected $news;
+    protected $product;
+    protected $project;
+    protected $video;
+    public function __construct(
+        Company $model,
+        MediaRepository $media,
+        NewsRepository $news,
+        ProductRepository $product,
+        ProjectRepository $project,
+        VideosRepository $video
+    ) {
         $this->model = $model;
+        $this->media = $media;
+        $this->news = $news;
+        $this->project = $project;
+        $this->product = $product;
+        $this->video = $video;
     }
 
     public function findList($limit)
@@ -24,8 +41,64 @@ class CompanyRepository implements CompanyRepositoryInterface
 
     public function findDetail($slug)
     {
-        //
+        $query = $this->model->where('slug', $slug)->select(
+            'company.company_name',
+            'company.package',
+            'company.email_company',
+            'company.phone_company',
+            'company.website',
+            'company.facebook',
+            'company.instagram',
+            'company.linkedin',
+            'company.image',
+            'company.banner_image',
+            'company.verify_company',
+            'company.slug'
+        )->first();
+        return $query;
     }
+
+    public function findDetailSection($slug, $request)
+    {
+        // Mendapatkan data dari tabel company
+        $section = $request->section;
+        if ($section == 'company') {
+            $data =  $this->DetailSectionCompany($slug);
+        } elseif ($section == 'media') {
+            $data = $this->media->findSearch($request);
+        } elseif ($section == 'news') {
+            $data = $this->news->findSearch($request);
+        } elseif ($section == 'product') {
+            $data = $this->product->findSearch($request);
+        } elseif ($section == 'project') {
+            $data = $this->project->findSearch($request);
+        } elseif ($section == 'video') {
+            $data = $this->video->findSearch($request);
+        }
+
+        return $data;
+    }
+
+    private function DetailSectionCompany($slug)
+    {
+        $query = $this->model->where('slug', $slug)->select(
+            'company.id',
+            'company.description',
+            'company.video',
+            'company.value_1',
+            'company.value_2',
+            'company.value_3'
+        )->first();
+
+        if ($query) {
+            // Menggabungkan data address dan representative ke dalam $query
+            $query->address = DB::table('company_address')->where('company_id', $query->id)->get();
+            $query->representative = DB::table('company_representative')->where('company_id', $query->id)->get();
+        }
+
+        return $query;
+    }
+
 
     public function findSearch($request)
     {

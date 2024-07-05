@@ -55,6 +55,10 @@ $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
 //News
 $router->get('news/{slug}', ['uses' => 'NewsController@detail']);
 
+//Company
+$router->get('company/{slug}', ['uses' => 'CompanyController@detail']);
+$router->get('company/section/{slug}', ['uses' => 'CompanyController@sectionDetail']);
+
 //Midleware Token
 $router->group(['middleware' => 'auth'], function () use ($router) {
     //Profile
