@@ -3,8 +3,11 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Company;
+use App\Models\CompanyFavorite;
+use App\Models\CompanyBusinessCard;
 use App\Models\User;
 use App\Repositories\Contracts\CompanyRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +21,12 @@ class CompanyRepository implements CompanyRepositoryInterface
     protected $product;
     protected $project;
     protected $video;
+    protected $companyFavorite;
+    protected $companyBusinesscard;
     public function __construct(
         Company $model,
+        CompanyFavorite $companyFavorite,
+        CompanyBusinessCard $companyBusinesscard,
         MediaRepository $media,
         NewsRepository $news,
         ProductRepository $product,
@@ -27,6 +34,8 @@ class CompanyRepository implements CompanyRepositoryInterface
         VideosRepository $video
     ) {
         $this->model = $model;
+        $this->companyFavorite = $companyFavorite;
+        $this->companyBusinesscard = $companyBusinesscard;
         $this->media = $media;
         $this->news = $news;
         $this->project = $project;
@@ -37,6 +46,67 @@ class CompanyRepository implements CompanyRepositoryInterface
     public function findList($limit)
     {
         //
+    }
+
+    public function addFavorite($request, $userId)
+    {
+
+        $favoriteId = $request->input('favorite_id');
+        $section = $request->input('section');
+        if ($section == 'company') {
+            $data = $this->favoriteCompany($favoriteId, $userId);
+        }
+        return $data;
+    }
+
+    public function addBusinessCard($request, $userId)
+    {
+        $companyId = $request->input('company_id');
+
+        // Insert the business card
+        $this->companyBusinesscard->insert([
+            'users_id' => $userId,
+            'company_id' => $companyId,
+            'status' => 'waiting',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        return ['action' => 'inserted', 'company_id' => $companyId];
+    }
+
+    public function addInquiry($request, $userId)
+    {
+        //
+    }
+
+    private function favoriteCompany($company_id, $userId)
+    {
+        $companyId = $company_id;
+
+        // Attempt to find an existing favorite or create a new instance
+        $favorite = $this->companyFavorite->firstOrNew([
+            'users_id' => $userId,
+            'company_id' => $companyId,
+        ]);
+
+        if ($favorite->exists) {
+            // If it exists, delete the favorite
+            $favorite->delete();
+
+            return [
+                'message' => 'Successfully removed favorite',
+                'result' => ['action' => 'removed', 'company_id' => $companyId]
+            ];
+        } else {
+            // If it does not exist, save the new favorite
+            $favorite->save();
+
+            return [
+                'message' => 'Successfully added favorite',
+                'result' => ['action' => 'added', 'company_id' => $companyId]
+            ];
+        }
     }
 
     public function findDetail($slug)
