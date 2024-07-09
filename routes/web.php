@@ -68,6 +68,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
     //Company
     $router->get('business-card', ['uses' => 'UserController@businesscard']);
+    $router->get('favorite/company', ['uses' => 'UserController@favorite']);
     //Company Action
     $router->post('create-favorite', ['uses' => 'CompanyController@addFavorite']);
     $router->post('sent-business-card', ['uses' => 'CompanyController@addBusinessCard']);

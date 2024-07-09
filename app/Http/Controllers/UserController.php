@@ -69,4 +69,11 @@ class UserController extends Controller
         $data  = $this->user->getBusinessCard($request, $userId);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function favorite(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->user->getFavorite($request, $userId);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }

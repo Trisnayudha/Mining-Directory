@@ -17,4 +17,6 @@ interface UserRepositoryInterface
     public function editProfileDetail($request, $id);
 
     public function getBusinessCard($request, $id);
+
+    public function getFavorite($request, $id);
 }

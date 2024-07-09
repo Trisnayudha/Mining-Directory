@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\CompanyBusinessCard;
+use App\Models\CompanyFavorite;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
@@ -13,11 +14,16 @@ class UserRepository implements UserRepositoryInterface
 {
     protected $model;
     protected $companyBusinessCard;
+    protected $companyFavorite;
 
-    public function __construct(User $model, CompanyBusinessCard $companyBusinessCard)
-    {
+    public function __construct(
+        User $model,
+        CompanyBusinessCard $companyBusinessCard,
+        CompanyFavorite $companyFavorite
+    ) {
         $this->model = $model;
         $this->companyBusinessCard = $companyBusinessCard;
+        $this->companyFavorite = $companyFavorite;
     }
 
     public function findByEmail($email)
@@ -97,7 +103,10 @@ class UserRepository implements UserRepositoryInterface
 
         $query = $this->companyBusinessCard->where('users_id', $id)
             ->leftJoin('company', 'company_users_buisnesscard.company_id', '=', 'company.id')
-            ->leftJoin('company_category_list', 'company_category_list.company_id', '=', 'company.id')
+            ->leftJoin('company_category_list', function ($join) {
+                $join->on('company_users_buisnesscard.company_id', '=', 'company_category_list.company_id')
+                    ->whereRaw('company_category_list.id = (select min(id) from company_category_list where company_category_list.company_id = company_users_buisnesscard.company_id)');
+            })
             ->leftJoin('md_category_company', 'company_category_list.category_id', '=', 'md_category_company.id')
             ->select(
                 'company_users_buisnesscard.*',
@@ -148,5 +157,27 @@ class UserRepository implements UserRepositoryInterface
                 'total' => $results->total(),
             ]
         ];
+    }
+
+
+    public function getFavorite($request, $id)
+    {
+        $section = $request->section;
+        if ($section == 'company') {
+            $data = $this->favoriteCompany($id);
+        }
+        return $data;
+    }
+
+    private function favoriteCompany($id)
+    {
+        $query = $this->companyFavorite->join('company', 'company.id', 'company_users_favorite.company_id')->select(
+            'company.id as company_id',
+            'company_users_favorite.id as favorite_id',
+            'company.company_name',
+            'company.image',
+            'company.location'
+        )->where('users_id', $id)->get();
+        return $query;
     }
 }
