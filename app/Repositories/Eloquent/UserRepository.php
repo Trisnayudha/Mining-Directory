@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Models\CompanyBusinessCard;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
@@ -11,10 +12,12 @@ use Intervention\Image\Facades\Image;
 class UserRepository implements UserRepositoryInterface
 {
     protected $model;
+    protected $companyBusinessCard;
 
-    public function __construct(User $model)
+    public function __construct(User $model, CompanyBusinessCard $companyBusinessCard)
     {
         $this->model = $model;
+        $this->companyBusinessCard = $companyBusinessCard;
     }
 
     public function findByEmail($email)
@@ -84,5 +87,66 @@ class UserRepository implements UserRepositoryInterface
         $user->save();
 
         return $user;
+    }
+
+    public function getBusinessCard($request, $id)
+    {
+        $search = $request->input('search');
+        $filter = $request->input('filter');
+        $paginate = $request->input('paginate', 10); // Default pagination value
+
+        $query = $this->companyBusinessCard->where('users_id', $id)
+            ->leftJoin('company', 'company_users_buisnesscard.company_id', '=', 'company.id')
+            ->leftJoin('company_category_list', 'company_category_list.company_id', '=', 'company.id')
+            ->leftJoin('md_category_company', 'company_category_list.category_id', '=', 'md_category_company.id')
+            ->select(
+                'company_users_buisnesscard.*',
+                'company.company_name',
+                'md_category_company.name as category_name'
+            );
+
+        // Apply search filter on company name
+        if (!empty($search)) {
+            $query->where('company.company_name', 'like', '%' . $search . '%');
+        }
+
+        // Apply status filter on company business card
+        if (!empty($filter)) {
+            $query->where('company_users_buisnesscard.status', $filter);
+        }
+
+        // Paginate results
+        $results = $query->groupBy(
+            'company_users_buisnesscard.id',
+            'company.company_name',
+            'md_category_company.name',
+            'company_users_buisnesscard.created_at',
+            'company_users_buisnesscard.updated_at',
+            'company_users_buisnesscard.company_id',
+            'company_users_buisnesscard.users_id',
+            'company_users_buisnesscard.status'
+        ) // Group by to ensure single category is returned
+            ->paginate($paginate);
+
+        // Map results to desired format
+        $formattedResults = $results->map(function ($businessCard, $index) {
+            return [
+                'nomor' => $index + 1,
+                'company_name' => $businessCard->company_name,
+                'company_category' => $businessCard->category_name,
+                'date_sent' => $businessCard->created_at->format('Y-m-d H:i:s'),
+                'status' => $businessCard->status,
+            ];
+        });
+
+        return [
+            'data' => $formattedResults,
+            'pagination' => [
+                'current_page' => $results->currentPage(),
+                'last_page' => $results->lastPage(),
+                'per_page' => $results->perPage(),
+                'total' => $results->total(),
+            ]
+        ];
     }
 }

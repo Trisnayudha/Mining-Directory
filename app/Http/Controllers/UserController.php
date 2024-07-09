@@ -62,4 +62,11 @@ class UserController extends Controller
         $data = $this->user->editProfileDetail($request, $userId);
         return $this->sendResponse('Successfully updated data', $data, 200);
     }
+
+    public function businesscard(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data  = $this->user->getBusinessCard($request, $userId);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }
