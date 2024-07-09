@@ -65,7 +65,8 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('profile', ['uses' => 'UserController@detail']);
     $router->post('profile/edit', ['uses' => 'UserController@editProfile']);
     $router->post('profile/edit/detail', ['uses' => 'UserController@editProfileDetail']);
-
+    $router->post('profile/bio', ['uses' => 'UserController@editProfileBio']);
+    $router->post('profile/background', ['uses' => 'UserController@editProfileBackground']);
     //Company
     $router->get('business-card', ['uses' => 'UserController@businesscard']);
     $router->get('favorite/company', ['uses' => 'UserController@favorite']);

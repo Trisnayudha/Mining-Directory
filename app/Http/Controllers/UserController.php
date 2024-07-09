@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Http\Request;
+use PDO;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
@@ -75,5 +76,19 @@ class UserController extends Controller
         $userId = $this->getAuthenticatedUserId();
         $data = $this->user->getFavorite($request, $userId);
         return $this->sendResponse('Successfully show data', $data, 200);
+    }
+
+    public function editProfileBio(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->user->editProfileBio($request, $userId);
+        return $this->sendResponse('Successfully updated data', $data, 200);
+    }
+
+    public function editProfileBackground(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->user->editProfileBackground($request, $userId);
+        return $this->sendResponse('Successfully updated data', $data, 200);
     }
 }

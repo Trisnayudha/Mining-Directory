@@ -95,6 +95,52 @@ class UserRepository implements UserRepositoryInterface
         return $user;
     }
 
+    public function editProfileBio($request, $id)
+    {
+        $user = $this->model->find($id);
+        if (!$user) {
+            return null;
+        }
+
+        $user->about = $request->about;
+        $user->save();
+
+        return $user;
+    }
+
+    public function editProfileBackground($request, $id)
+    {
+        $user = $this->model->find($id);
+        if (!$user) {
+            return null;
+        }
+
+        if ($request->hasFile('background_image')) {
+            $file = $request->file('background_image');
+            if ($file) {
+                $imageName = time() . '.' . $file->extension();
+                $dbPath = 'storage/profile-background/' . $imageName;
+                $saveFolder = $file->storeAs('public/profile-background', $imageName);
+
+                // Create a new Intervention Image instance from the uploaded file
+                $compressedImage = Image::make(storage_path('app/public/profile-background/' . $imageName));
+
+                // Resize the image to a maximum width of 400 while maintaining aspect ratio
+                $compressedImage->resize(400, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+
+                // Save the resized image
+                $compressedImage->save(storage_path('app/public/profile-background/' . $imageName));
+                $user->background_image = url($dbPath);
+            }
+        }
+        $user->save();
+
+        return $user;
+    }
+
     public function getBusinessCard($request, $id)
     {
         $search = $request->input('search');
