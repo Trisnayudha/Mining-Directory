@@ -5,7 +5,12 @@ namespace App\Repositories\Eloquent;
 use App\Models\Company;
 use App\Models\CompanyFavorite;
 use App\Models\CompanyBusinessCard;
+use App\Models\MediaResourceFavorite;
+use App\Models\NewsFavorite;
+use App\Models\ProductFavorite;
+use App\Models\ProjectFavorite;
 use App\Models\User;
+use App\Models\VideosFavorite;
 use App\Repositories\Contracts\CompanyRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -50,12 +55,28 @@ class CompanyRepository implements CompanyRepositoryInterface
 
     public function addFavorite($request, $userId)
     {
-
         $favoriteId = $request->input('favorite_id');
         $section = $request->input('section');
+
         if ($section == 'company') {
             $data = $this->favoriteCompany($favoriteId, $userId);
+        } elseif ($section == 'product') {
+            $data = $this->favoriteProduct($favoriteId, $userId);
+        } elseif ($section == 'project') {
+            $data = $this->favoriteProject($favoriteId, $userId);
+        } elseif ($section == 'video') {
+            $data = $this->favoriteVideo($favoriteId, $userId);
+        } elseif ($section == 'news') {
+            $data = $this->favoriteNews($favoriteId, $userId);
+        } elseif ($section == 'media') {
+            $data = $this->favoriteMedia($favoriteId, $userId);
+        } else {
+            $data = [
+                'message' => 'Invalid section provided',
+                'result' => []
+            ];
         }
+
         return $data;
     }
 
@@ -108,6 +129,152 @@ class CompanyRepository implements CompanyRepositoryInterface
             ];
         }
     }
+
+    private function favoriteProduct($product_id, $userId)
+    {
+        $productId = $product_id;
+
+        // Attempt to find an existing favorite or create a new instance
+        $favorite = ProductFavorite::firstOrNew([
+            'users_id' => $userId,
+            'product_id' => $productId,
+        ]);
+
+        if ($favorite->exists) {
+            // If it exists, delete the favorite
+            $favorite->delete();
+
+            return [
+                'message' => 'Successfully removed favorite',
+                'result' => ['action' => 'removed', 'product_id' => $productId]
+            ];
+        } else {
+            // If it does not exist, save the new favorite
+            $favorite->save();
+
+            return [
+                'message' => 'Successfully added favorite',
+                'result' => ['action' => 'added', 'product_id' => $productId]
+            ];
+        }
+    }
+
+    private function favoriteProject($project_id, $userId)
+    {
+        $projectId = $project_id;
+
+        // Attempt to find an existing favorite or create a new instance
+        $favorite = ProjectFavorite::firstOrNew([
+            'users_id' => $userId,
+            'project_id' => $projectId,
+        ]);
+
+        if ($favorite->exists) {
+            // If it exists, delete the favorite
+            $favorite->delete();
+
+            return [
+                'message' => 'Successfully removed favorite',
+                'result' => ['action' => 'removed', 'project_id' => $projectId]
+            ];
+        } else {
+            // If it does not exist, save the new favorite
+            $favorite->save();
+
+            return [
+                'message' => 'Successfully added favorite',
+                'result' => ['action' => 'added', 'project_id' => $projectId]
+            ];
+        }
+    }
+
+    private function favoriteMedia($media_resource_id, $userId)
+    {
+        $mediaResourceId = $media_resource_id;
+
+        // Attempt to find an existing favorite or create a new instance
+        $favorite = MediaResourceFavorite::firstOrNew([
+            'users_id' => $userId,
+            'media_resource_id' => $mediaResourceId,
+        ]);
+
+        if ($favorite->exists) {
+            // If it exists, delete the favorite
+            $favorite->delete();
+
+            return [
+                'message' => 'Successfully removed favorite',
+                'result' => ['action' => 'removed', 'media_resource_id' => $mediaResourceId]
+            ];
+        } else {
+            // If it does not exist, save the new favorite
+            $favorite->save();
+
+            return [
+                'message' => 'Successfully added favorite',
+                'result' => ['action' => 'added', 'media_resource_id' => $mediaResourceId]
+            ];
+        }
+    }
+
+    private function favoriteNews($news_id, $userId)
+    {
+        $newsId = $news_id;
+
+        // Attempt to find an existing favorite or create a new instance
+        $favorite = NewsFavorite::firstOrNew([
+            'users_id' => $userId,
+            'news_id' => $newsId,
+        ]);
+
+        if ($favorite->exists) {
+            // If it exists, delete the favorite
+            $favorite->delete();
+
+            return [
+                'message' => 'Successfully removed favorite',
+                'result' => ['action' => 'removed', 'news_id' => $newsId]
+            ];
+        } else {
+            // If it does not exist, save the new favorite
+            $favorite->save();
+
+            return [
+                'message' => 'Successfully added favorite',
+                'result' => ['action' => 'added', 'news_id' => $newsId]
+            ];
+        }
+    }
+
+    private function favoriteVideo($videos_id, $userId)
+    {
+        $videoId = $videos_id;
+
+        // Attempt to find an existing favorite or create a new instance
+        $favorite = VideosFavorite::firstOrNew([
+            'users_id' => $userId,
+            'video_id' => $videoId,
+        ]);
+
+        if ($favorite->exists) {
+            // If it exists, delete the favorite
+            $favorite->delete();
+
+            return [
+                'message' => 'Successfully removed favorite',
+                'result' => ['action' => 'removed', 'video_id' => $videoId]
+            ];
+        } else {
+            // If it does not exist, save the new favorite
+            $favorite->save();
+
+            return [
+                'message' => 'Successfully added favorite',
+                'result' => ['action' => 'added', 'video_id' => $videoId]
+            ];
+        }
+    }
+
 
     public function findDetail($slug)
     {
