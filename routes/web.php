@@ -17,62 +17,70 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->group(['middleware' => 'log.user.activity'], function () use ($router) {
+    $router->group(['prefix' => 'api'], function () use ($router) {
+        $router->post('/login/password', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@loginPassword']);
+        $router->post('/request/OTP', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@requestOtp']);
+        $router->post('/login/verify/OTP', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@verifyOtp']);
+        $router->post('/register', ['uses' => 'Auth\RegisterController@register']); // Route untuk registrasi
+        $router->get('/verify/{token}', ['uses' => 'Auth\RegisterController@verify']);
+        $router->get('/check-token-data', ['uses' => 'Token\TokenController@checkTokenData']);
+    });
 
-$router->group(['prefix' => 'api'], function () use ($router) {
-    $router->post('/login/password', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@loginPassword']);
-    $router->post('/request/OTP', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@requestOtp']);
-    $router->post('/login/verify/OTP', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@verifyOtp']);
-    $router->post('/register', ['uses' => 'Auth\RegisterController@register']); // Route untuk registrasi
-    $router->get('/verify/{token}', ['uses' => 'Auth\RegisterController@verify']);
-    $router->get('/check-token-data', ['uses' => 'Token\TokenController@checkTokenData']);
-});
+    $router->get('home/carousel', ['uses' => 'HomeController@carousel']);
+    $router->get('home/statistic', ['uses' => 'HomeController@statistic']);
+    $router->get('home/category', ['uses' => 'HomeController@category']);
+    $router->get('home/popular-category', ['uses' => 'HomeController@popularCategory']);
+    $router->get('home/company', ['uses' => 'HomeController@company']);
+    $router->get('home/product', ['uses' => 'HomeController@product']);
+    $router->get('home/video', ['uses' => 'HomeController@video']);
+    $router->get('home/news', ['uses' => 'HomeController@news']);
+    $router->post('home/contact-us', ['uses' => 'HelpController@contactUs']);
 
-$router->get('home/carousel', ['uses' => 'HomeController@carousel']);
-$router->get('home/statistic', ['uses' => 'HomeController@statistic']);
-$router->get('home/category', ['uses' => 'HomeController@category']);
-$router->get('home/popular-category', ['uses' => 'HomeController@popularCategory']);
-$router->get('home/company', ['uses' => 'HomeController@company']);
-$router->get('home/product', ['uses' => 'HomeController@product']);
-$router->get('home/video', ['uses' => 'HomeController@video']);
-$router->get('home/news', ['uses' => 'HomeController@news']);
+    $router->get('faq-home', ['uses' => 'HelpController@faqHome']);
+    $router->get('privacy-policy', ['uses' => 'HelpController@privacyPolicy']);
+    $router->get('term-condition', ['uses' => 'HelpController@termCondition']);
+
+    $router->get('profile/faq', ['uses' => 'HelpController@faqProfile']);
 
 
-//Search
-$router->get('search', ['uses' => 'SearchController@index']);
+    //Search
+    $router->get('search', ['uses' => 'SearchController@index']);
 
-//Product
-$router->get('products/{slug}', ['uses' => 'ProductController@detail']);
+    //Product
+    $router->get('products/{slug}', ['uses' => 'ProductController@detail']);
 
-//Media Resource
-$router->get('media-resource/{slug}', ['uses' => 'MediaResourceController@detail']);
+    //Media Resource
+    $router->get('media-resource/{slug}', ['uses' => 'MediaResourceController@detail']);
 
-//Project
-$router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
+    //Project
+    $router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
 
-//Videos
-$router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
+    //Videos
+    $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
 
-//News
-$router->get('news/{slug}', ['uses' => 'NewsController@detail']);
+    //News
+    $router->get('news/{slug}', ['uses' => 'NewsController@detail']);
 
-//Company
-$router->get('company/{slug}', ['uses' => 'CompanyController@detail']);
-$router->get('company/section/{slug}', ['uses' => 'CompanyController@sectionDetail']);
-$router->post('company/inquiry', ['uses' => 'CompanyController@addInquiry']);
-//Midleware Token
-$router->group(['middleware' => 'auth'], function () use ($router) {
-    //Profile
-    $router->get('profile', ['uses' => 'UserController@detail']);
-    $router->post('profile/edit', ['uses' => 'UserController@editProfile']);
-    $router->post('profile/edit/detail', ['uses' => 'UserController@editProfileDetail']);
-    $router->post('profile/bio', ['uses' => 'UserController@editProfileBio']);
-    $router->post('profile/background', ['uses' => 'UserController@editProfileBackground']);
-    $router->post('profile/change-password', ['uses' => 'UserController@changePassword']);
     //Company
-    $router->get('business-card', ['uses' => 'UserController@businesscard']);
-    $router->get('favorite/company', ['uses' => 'UserController@favorite']);
-    //Company Action
-    $router->post('create-favorite', ['uses' => 'CompanyController@addFavorite']);
-    $router->post('sent-business-card', ['uses' => 'CompanyController@addBusinessCard']);
+    $router->get('company/{slug}', ['uses' => 'CompanyController@detail']);
+    $router->get('company/section/{slug}', ['uses' => 'CompanyController@sectionDetail']);
+    $router->post('company/inquiry', ['uses' => 'CompanyController@addInquiry']);
+    //Midleware Token
+    $router->group(['middleware' => 'auth'], function () use ($router) {
+        //Profile
+        $router->get('profile', ['uses' => 'UserController@detail']);
+        $router->post('profile/edit', ['uses' => 'UserController@editProfile']);
+        $router->post('profile/edit/detail', ['uses' => 'UserController@editProfileDetail']);
+        $router->post('profile/bio', ['uses' => 'UserController@editProfileBio']);
+        $router->post('profile/background', ['uses' => 'UserController@editProfileBackground']);
+        $router->post('profile/change-password', ['uses' => 'UserController@changePassword']);
+        //Company
+        $router->get('business-card', ['uses' => 'UserController@businesscard']);
+        $router->get('favorite/company', ['uses' => 'UserController@favorite']);
+        //Company Action
+        $router->post('create-favorite', ['uses' => 'CompanyController@addFavorite']);
+        $router->post('sent-business-card', ['uses' => 'CompanyController@addBusinessCard']);
+    });
+    $router->post('check-email', ['uses' => 'UserController@checkEmail']);
 });
-$router->post('check-email', ['uses' => 'UserController@checkEmail']);
