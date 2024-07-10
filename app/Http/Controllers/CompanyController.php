@@ -54,6 +54,14 @@ class CompanyController extends Controller
 
     public function addInquiry(Request $request)
     {
-        //
+        $userId = null;
+        try {
+            $userId = JWTAuth::parseToken()->authenticate()->id;
+        } catch (\Exception $e) {
+            // Token tidak ada atau tidak valid, biarkan $userId tetap null
+        }
+
+        $data = $this->company->addInquiry($request, $userId);
+        return $this->sendResponse('Successfully sent inquiry', $data, 200);
     }
 }

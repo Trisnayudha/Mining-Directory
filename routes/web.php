@@ -58,7 +58,7 @@ $router->get('news/{slug}', ['uses' => 'NewsController@detail']);
 //Company
 $router->get('company/{slug}', ['uses' => 'CompanyController@detail']);
 $router->get('company/section/{slug}', ['uses' => 'CompanyController@sectionDetail']);
-
+$router->post('company/inquiry', ['uses' => 'CompanyController@addInquiry']);
 //Midleware Token
 $router->group(['middleware' => 'auth'], function () use ($router) {
     //Profile

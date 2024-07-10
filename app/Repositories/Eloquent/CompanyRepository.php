@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\Company;
 use App\Models\CompanyFavorite;
 use App\Models\CompanyBusinessCard;
+use App\Models\CompanyInquiry;
 use App\Models\MediaResourceFavorite;
 use App\Models\NewsFavorite;
 use App\Models\ProductFavorite;
@@ -98,8 +99,37 @@ class CompanyRepository implements CompanyRepositoryInterface
 
     public function addInquiry($request, $userId)
     {
-        //
+        $companyId = $request->input('company_id');
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $type = $request->input('type');
+        $date = $request->input('date');
+        $message = $request->input('message');
+
+        // Buat instance baru dari CompanyInquiry dan simpan data
+        $inquiry = new CompanyInquiry();
+        $inquiry->company_id = $companyId;
+        $inquiry->name = $name;
+        $inquiry->email = $email;
+        $inquiry->type = $type;
+        $inquiry->date = $date;
+        $inquiry->message = $message;
+        $inquiry->users_id = $userId;
+
+        // Simpan inquiry ke database
+        if ($inquiry->save()) {
+            return [
+                'message' => 'Inquiry successfully added',
+                'result' => $inquiry
+            ];
+        } else {
+            return [
+                'message' => 'Failed to add inquiry',
+                'result' => null
+            ];
+        }
     }
+
 
     private function favoriteCompany($company_id, $userId)
     {
