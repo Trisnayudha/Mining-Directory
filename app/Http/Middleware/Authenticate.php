@@ -40,14 +40,23 @@ class Authenticate
         try {
             $user = JWTAuth::parseToken()->authenticate();
         } catch (Exception $e) {
+            $response = [
+                'status' => 401, // Unauthorized
+                'message' => '',
+                'payload' => null
+            ];
+
             if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
-                return response()->json(['status' => 'Token is Invalid']);
+                $response['message'] = 'Token is Invalid';
             } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
-                return response()->json(['status' => 'Token is Expired']);
+                $response['message'] = 'Token is Expired';
             } else {
-                return response()->json(['status' => 'Authorization Token not found']);
+                $response['message'] = 'Authorization Token not found';
             }
+
+            return response()->json($response, 401);
         }
+
         return $next($request);
     }
 }

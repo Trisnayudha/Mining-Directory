@@ -23,4 +23,6 @@ interface UserRepositoryInterface
     public function editProfileBio($request, $id);
 
     public function editProfileBackground($request, $id);
+
+    public function changePassword($request, $id);
 }

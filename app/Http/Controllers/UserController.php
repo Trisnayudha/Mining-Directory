@@ -91,4 +91,12 @@ class UserController extends Controller
         $data = $this->user->editProfileBackground($request, $userId);
         return $this->sendResponse('Successfully updated data', $data, 200);
     }
+
+    public function changePassword(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->user->changePassword($request, $userId);
+
+        return $this->sendResponse($data['message'], isset($data['errors']) ? $data['errors'] : [], $data['status']);
+    }
 }

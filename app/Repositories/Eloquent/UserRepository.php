@@ -13,6 +13,7 @@ use App\Models\VideosFavorite;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 
 class UserRepository implements UserRepositoryInterface
@@ -234,6 +235,37 @@ class UserRepository implements UserRepositoryInterface
         }
         return $data;
     }
+
+    public function changePassword($request, $userId)
+    {
+        $user = $this->model->find($userId);
+
+        if (!$user) {
+            return ['message' => 'User not found', 'status' => 404];
+        }
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+            'new_password' => 'required|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return ['message' => 'Validation failed', 'errors' => $validator->errors(), 'status' => 400];
+        }
+
+        // Check if the old password matches
+        if (!Hash::check($request->input('old_password'), $user->password)) {
+            return ['message' => 'Old password is incorrect', 'status' => 400];
+        }
+
+        // Update the password
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        return ['message' => 'Password successfully changed', 'status' => 200];
+    }
+
 
     private function favoriteCompany($id)
     {
