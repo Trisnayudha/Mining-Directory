@@ -4,7 +4,12 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\CompanyBusinessCard;
 use App\Models\CompanyFavorite;
+use App\Models\MediaResourceFavorite;
+use App\Models\NewsFavorite;
+use App\Models\ProductFavorite;
+use App\Models\ProjectFavorite;
 use App\Models\User;
+use App\Models\VideosFavorite;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -211,6 +216,21 @@ class UserRepository implements UserRepositoryInterface
         $section = $request->section;
         if ($section == 'company') {
             $data = $this->favoriteCompany($id);
+        } elseif ($section == 'product') {
+            $data = $this->favoriteProduct($id);
+        } elseif ($section == 'project') {
+            $data = $this->favoriteProject($id);
+        } elseif ($section == 'video') {
+            $data = $this->favoriteVideo($id);
+        } elseif ($section == 'news') {
+            $data = $this->favoriteNews($id);
+        } elseif ($section == 'media') {
+            $data = $this->favoriteMedia($id);
+        } else {
+            $data = [
+                'message' => 'Invalid section provided',
+                'result' => []
+            ];
         }
         return $data;
     }
@@ -222,8 +242,93 @@ class UserRepository implements UserRepositoryInterface
             'company_users_favorite.id as favorite_id',
             'company.company_name',
             'company.image',
-            'company.location'
+            'company.location',
+            'company.slug'
         )->where('users_id', $id)->get();
+        return $query;
+    }
+
+    private function favoriteProduct($id)
+    {
+        $query = ProductFavorite::join('products', 'products.id', '=', 'products_favorite.product_id')
+            ->leftJoin('products_asset', function ($join) {
+                $join->on('products_asset.product_id', '=', 'products.id')
+                    ->where('products_asset.asset_type', '=', 'png');
+            })
+            ->join('company', 'company.id', '=', 'products.company_id')
+            ->select(
+                'products.id as product_id',
+                'products_favorite.id as favorite_id',
+                'products.title',
+                'products.slug',
+                'products_asset.asset as image', // Get the asset from products_asset with asset_type png
+                'company.company_name'
+            )->where('users_id', $id)->get();
+
+        return $query;
+    }
+
+    private function favoriteProject($id)
+    {
+        $query = ProjectFavorite::join('projects', 'projects.id', '=', 'projects_favorite.project_id')
+            ->join('company', 'company.id', '=', 'projects.company_id')
+            ->select(
+                'projects.id as project_id',
+                'projects_favorite.id as favorite_id',
+                'projects.title',
+                'projects.slug',
+                'projects.image',
+                'company.company_name'
+            )->where('users_id', $id)->get();
+
+        return $query;
+    }
+
+    private function favoriteVideo($id)
+    {
+        $query = VideosFavorite::join('videos', 'videos.id', '=', 'videos_favorite.video_id')
+            ->join('company', 'company.id', '=', 'videos.company_id')
+            ->select(
+                'videos.id as videos_id',
+                'videos_favorite.id as favorite_id',
+                'videos.title',
+                'videos.slug',
+                'videos.asset',
+                'company.company_name'
+            )->where('users_id', $id)->get();
+
+        return $query;
+    }
+
+    private function favoriteNews($id)
+    {
+        $query = NewsFavorite::join('news', 'news.id', '=', 'news_favorite.news_id')
+            ->join('company', 'company.id', '=', 'news.company_id')
+            ->select(
+                'news.id as news_id',
+                'news_favorite.id as favorite_id',
+                'news.title',
+                'news.image',
+                'news.date_news',
+                'company.company_name'
+            )->where('users_id', $id)->get();
+
+        return $query;
+    }
+
+    private function favoriteMedia($id)
+    {
+        $query = MediaResourceFavorite::join('media_resource', 'media_resource.id', '=', 'media_resource_favorite.media_resource_id')
+            ->join('company', 'company.id', '=', 'media_resource.company_id')
+            ->select(
+                'media_resource.id as media_resource_id',
+                'media_resource_favorite.id as favorite_id',
+                'media_resource.title',
+                'media_resource.image',
+                'media_resource.slug',
+                'company.company_name'
+            )->where('users_id', $id)->get();
+
         return $query;
     }
 }
