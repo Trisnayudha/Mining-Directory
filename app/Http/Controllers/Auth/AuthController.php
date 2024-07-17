@@ -36,14 +36,18 @@ class AuthController extends Controller
                 'password' => 'required'
             ]);
 
+            // Cek apakah email terdaftar di model User
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                // Return error response if email not found
+                return $this->sendResponse('User not found', null, 404);
+            }
+
             // Attempt to authenticate the user
             if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
                 // Return error response if authentication fails
                 return $this->sendResponse('Unauthorized', null, 401);
             }
-
-            // Get the authenticated user from the JWTAuth facade
-            $user = JWTAuth::user();
 
             // Create a custom token with user's role
             $token = JWTAuth::claims(['role' => 'users'])->attempt($request->only('email', 'password'));
@@ -60,6 +64,7 @@ class AuthController extends Controller
     }
 
 
+
     public function requestOtp(Request $request)
     {
         $type = $request->type;
@@ -71,7 +76,7 @@ class AuthController extends Controller
             Cache::put($email, $otp, 600); // 600 seconds or 10 minutes
             $user = User::where('email', $email)->first();
             if (empty($user)) {
-                return $this->sendResponse('Unauthorized', null, 401);
+                return $this->sendResponse('User not found', null, 404);
             }
             if ($type == 'email') {
                 //
