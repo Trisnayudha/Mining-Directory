@@ -40,7 +40,7 @@ class RegisterController extends Controller
             $user = new User([
                 'name' => $request->name,
                 'email' => $request->email,
-                'prefi_phone' => $request->prefix_phone,
+                'prefix_phone' => $request->prefix_phone,
                 'phone' => $request->phone,
                 'password' => app('hash')->make($request->password),
                 'verification_token' => Str::random(60),
