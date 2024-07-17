@@ -16,6 +16,10 @@ class VideosRepository implements VideosRepositoryInterface
         $this->model = $model;
     }
 
+    public function findHome()
+    {
+        return $this->model->join('company', 'company.id', 'videos.company_id')->select('videos.*', 'company.company_name')->take(4)->get();
+    }
     public function findSearch($request)
     {
         $search = $request->search;

@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\ResponseHelper;
 use App\Models\Company;
 use App\Repositories\Eloquent\CategoryRepository;
+use App\Repositories\Eloquent\CompanyRepository;
+use App\Repositories\Eloquent\HomeRepository;
+use App\Repositories\Eloquent\NewsRepository;
+use App\Repositories\Eloquent\ProductRepository;
+use App\Repositories\Eloquent\VideosRepository;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -16,47 +21,36 @@ class HomeController extends Controller
      * @return void
      */
     protected $category;
-    public function __construct(CategoryRepository $category)
-    {
+    protected $company;
+    protected $product;
+    protected $video;
+    protected $news;
+    protected $home;
+    public function __construct(
+        CategoryRepository $category,
+        CompanyRepository $company,
+        ProductRepository $product,
+        VideosRepository $video,
+        NewsRepository $news,
+        HomeRepository $home
+    ) {
         $this->category = $category;
+        $this->company = $company;
+        $this->product = $product;
+        $this->video = $video;
+        $this->news = $news;
+        $this->home = $home;
     }
 
     public function carousel()
     {
-        $data = [
-            [
-                'image' => 'https://dummyimage.com/1000x350/eb26eb/ffffff',
-                'slug' => 'explore-mining-gear-1',
-            ],
-            [
-                'image' => 'https://dummyimage.com/1000x350/452045/ffffff',
-                'slug' => 'explore-mining-gear-2',
-            ],
-            [
-                'image' => 'https://dummyimage.com/1000x350/147dd9/ffffff',
-                'slug' => 'explore-mining-gear-3',
-            ],
-            [
-                'image' => 'https://dummyimage.com/1000x350/25f5eb/ffffff',
-                'slug' => 'explore-mining-gear-4',
-            ],
-            [
-                'image' => 'https://dummyimage.com/1000x350/f5c827/ffffff',
-                'slug' => 'explore-mining-gear-5',
-            ],
-        ];
-
+        $data = $this->home->carousel();
         return $this->sendResponse('Successfully retrieved carousel data', $data, 200);
     }
 
     public function statistic()
     {
-        $data = [
-            'data_1' => 300,
-            'data_2' => 10000,
-            'data_3' => 1500
-        ];
-
+        $data = $this->home->statistic();
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
@@ -74,25 +68,25 @@ class HomeController extends Controller
 
     public function company()
     {
-        $data = Company::where('package', 'platinum')->select('package', 'image', 'company_name', 'location', 'category_company', 'description', 'video', 'slug')->take(8)->get();
+        $data = $this->company->findHome();
         return $this->sendResponse('Successfully show company data', $data, 200);
     }
 
     public function product()
     {
-        $data = DB::table('products')->join('company', 'company.id', 'products.company_id')->select('products.*', 'company.company_name')->take(4)->get();
+        $data = $this->product->findHome();
         return $this->sendResponse('Successfully show products data', $data, 200);
     }
 
     public function video()
     {
-        $data = DB::table('videos')->join('company', 'company.id', 'videos.company_id')->select('videos.*', 'company.company_name')->take(4)->get();
+        $data = $this->video->findHome();
         return $this->sendResponse('Successfully show videos data', $data, 200);
     }
 
     public function news()
     {
-        $data = DB::table('news')->join('company', 'company.id', 'news.company_id')->select('news.*', 'company.company_name')->take(5)->get();
+        $data = $this->news->findHome();
         return $this->sendResponse('Successfully show news data', $data, 200);
     }
 }

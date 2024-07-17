@@ -6,6 +6,7 @@ namespace App\Repositories\Contracts;
 
 interface CompanyRepositoryInterface
 {
+    public function findHome();
     public function findList($limit);
     public function findDetail($slug);
     public function findDetailSection($slug, $section);

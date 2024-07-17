@@ -6,6 +6,7 @@ namespace App\Repositories\Contracts;
 
 interface NewsRepositoryInterface
 {
+    public function findHome();
     public function findSearch($request);
     public function detail($slug);
 }

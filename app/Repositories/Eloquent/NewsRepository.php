@@ -16,6 +16,10 @@ class NewsRepository implements NewsRepositoryInterface
         $this->model = $model;
     }
 
+    public function findHome()
+    {
+        return $this->model->join('company', 'company.id', 'news.company_id')->select('news.*', 'company.company_name')->take(5)->get();
+    }
     public function findSearch($request)
     {
         $search = $request->search;

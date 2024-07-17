@@ -49,6 +49,11 @@ class CompanyRepository implements CompanyRepositoryInterface
         $this->video = $video;
     }
 
+    public function findHome()
+    {
+        return $this->model->where('package', 'platinum')->select('package', 'image', 'company_name', 'location', 'category_company', 'description', 'video', 'slug')->take(8)->get();
+    }
+
     public function findList($request)
     {
         $package = $request->package;
