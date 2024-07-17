@@ -70,6 +70,9 @@ class AuthController extends Controller
             // Setting OTP to cache with a 10-minute expiration
             Cache::put($email, $otp, 600); // 600 seconds or 10 minutes
             $user = User::where('email', $email)->first();
+            if (empty($user)) {
+                return $this->sendResponse('User not found', null, 404);
+            }
             if ($type == 'email') {
                 //
                 $sendEmail = new EmailSender();
