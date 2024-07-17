@@ -16,6 +16,7 @@ class CompanyInquiry extends Model
         'date',
         'message',
         'users_id',
-        'company_id'
+        'company_id',
+        'status'
     ];
 }
