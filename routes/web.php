@@ -99,6 +99,9 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
         $router->group(['prefix' => 'api/company'], function () use ($router) {
             $router->get('/dashboard-card', ['uses' => 'AdminDashboardController@card']);
             $router->get('/dashboard-list-of-visitor', ['uses' => 'AdminDashboardController@listVisitor']);
+            $router->get('/dashboard-list-of-inquiry', ['uses' => 'AdminDashboardController@listInquiry']);
+            $router->post('/action-inquiry', ['uses' => 'AdminDashboardController@approveInquiry']);
+            $router->get('/dashboard-list-of-businesscard', ['uses' => 'AdminDashboardController@listBusinessCard']);
         });
     });
 

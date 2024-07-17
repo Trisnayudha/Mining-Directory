@@ -116,6 +116,7 @@ class CompanyRepository implements CompanyRepositoryInterface
         $inquiry->date = $date;
         $inquiry->message = $message;
         $inquiry->users_id = $userId;
+        $inquiry->status = 'waiting';
 
         // Simpan inquiry ke database
         if ($inquiry->save()) {
