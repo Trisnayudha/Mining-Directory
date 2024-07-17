@@ -49,9 +49,10 @@ class CompanyRepository implements CompanyRepositoryInterface
         $this->video = $video;
     }
 
-    public function findList($limit)
+    public function findList($request)
     {
-        //
+        $package = $request->package;
+        $paginate = $request->paginate ?? 10; // default 10
     }
 
     public function addFavorite($request, $userId)
@@ -309,6 +310,7 @@ class CompanyRepository implements CompanyRepositoryInterface
     public function findDetail($slug)
     {
         $query = $this->model->where('slug', $slug)->select(
+            'company.id',
             'company.company_name',
             'company.package',
             'company.email_company',
@@ -374,6 +376,7 @@ class CompanyRepository implements CompanyRepositoryInterface
         $sub_category_name = $request->sub_category_id; // Assume this is the name of the sub-category
         $paginate = $request->paginate ?? 12; // Default to 12 if not provided
         $location = $request->location;
+        $package = $request->package;
 
         $query = $this->model->newQuery();
         // Join with category and subcategory tables
@@ -408,6 +411,10 @@ class CompanyRepository implements CompanyRepositoryInterface
             $query->where('md_sub_category_company.name', 'LIKE', '%' . $sub_category_name . '%');
         }
 
+        if (!empty($package)) {
+            $query->where('company.package', '=', $package);
+        }
+        // Filter by package if provided
         // Order results to prioritize search fields
         $query->orderByRaw("
             CASE
@@ -433,17 +440,20 @@ class CompanyRepository implements CompanyRepositoryInterface
         $platinum = $results->where('package', 'platinum');
         $gold = $results->where('package', 'gold');
         $silver = $results->where('package', 'silver');
+        $free = $results->where('package', 'free');
 
         // Paginate each package
         $platinum_paginated = $this->paginateCollection($platinum, $paginate);
         $gold_paginated = $this->paginateCollection($gold, $paginate);
         $silver_paginated = $this->paginateCollection($silver, $paginate);
+        $free_paginated = $this->paginateCollection($free, $paginate);
 
         // Prepare payload
         $payload = [
             'platinum' => $platinum_paginated->items(),
             'gold' => $gold_paginated->items(),
             'silver' => $silver_paginated->items(),
+            'free' => $free_paginated->items(),
             'current_page' => $platinum_paginated->currentPage(), // Assuming all packages use the same pagination settings
             'total' => $results->count(), // Total count of all results
             'per_page' => $paginate,

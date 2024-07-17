@@ -66,6 +66,7 @@ $app->middleware([
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'company.auth' => App\Http\Middleware\CompanyAuthenticate::class,
     'throttle' => App\Http\Middleware\ThrottleLogins::class,
     'log.user.activity' => App\Http\Middleware\LogUserActivity::class,
 ]);

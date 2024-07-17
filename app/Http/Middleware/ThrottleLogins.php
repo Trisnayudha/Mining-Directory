@@ -20,15 +20,15 @@ class ThrottleLogins
     {
         $key = $this->resolveRequestKey($request);
 
-        if ($this->limiter->tooManyAttempts($key, 5)) {
-            $retryAfter = ceil($this->limiter->availableIn($key) / 60); // Bulatkan ke atas dalam menit
-            // Menggunakan format response custom
-            return response()->json([
-                'status' => 429, // HTTP status code
-                'message' => 'Too many login attempts. Please try again in ' . $retryAfter . ' minutes.',
-                'payload' => null
-            ], 429);
-        }
+        // if ($this->limiter->tooManyAttempts($key, 5)) {
+        //     $retryAfter = ceil($this->limiter->availableIn($key) / 60); // Bulatkan ke atas dalam menit
+        //     // Menggunakan format response custom
+        //     return response()->json([
+        //         'status' => 429, // HTTP status code
+        //         'message' => 'Too many login attempts. Please try again in ' . $retryAfter . ' minutes.',
+        //         'payload' => null
+        //     ], 429);
+        // }
 
         $response = $next($request);
 

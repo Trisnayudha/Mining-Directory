@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\CompanyRepository;
+use App\Traits\CompanyLogTrait;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CompanyController extends Controller
 {
-    use ResponseHelper; // Gunakan trait di sini
+    use ResponseHelper, CompanyLogTrait; // Gunakan trait di sini
     /**
      * Create a new controller instance.
      *
@@ -26,9 +27,28 @@ class CompanyController extends Controller
         return JWTAuth::parseToken()->authenticate()->id;
     }
 
+    public function list(Request $request)
+    {
+        $data = $this->company->findSearch($request);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
+
     public function detail($slug)
     {
+        $userId = null;
+        try {
+            $userId = JWTAuth::parseToken()->authenticate()->id;
+        } catch (\Exception $e) {
+            // Token tidak ada atau tidak valid, biarkan $userId tetap null
+        }
+
         $data = $this->company->findDetail($slug);
+
+        // Log company detail view
+        if ($data && $userId) {
+            $this->logCompanyDetail($data->id, $userId);
+        }
+
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
