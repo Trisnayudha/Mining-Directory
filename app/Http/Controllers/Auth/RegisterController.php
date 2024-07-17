@@ -33,12 +33,14 @@ class RegisterController extends Controller
                 'name' => 'required',
                 'email' => 'required|email|unique:users',
                 'password' => 'required',
-                'phone' => 'required'
+                'phone' => 'required',
+                'prefix_phone' => 'required'
             ]);
 
             $user = new User([
                 'name' => $request->name,
                 'email' => $request->email,
+                'prefi_phone' => $request->prefix_phone,
                 'phone' => $request->phone,
                 'password' => app('hash')->make($request->password),
                 'verification_token' => Str::random(60),
