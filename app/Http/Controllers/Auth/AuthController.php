@@ -46,7 +46,7 @@ class AuthController extends Controller
             // Attempt to authenticate the user
             if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
                 // Return error response if authentication fails
-                return $this->sendResponse('Unauthorized', null, 401);
+                return $this->sendResponse('The password you entered is incorrect. Please try again.', null, 401);
             }
 
             // Create a custom token with user's role
