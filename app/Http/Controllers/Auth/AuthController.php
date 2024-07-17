@@ -71,7 +71,7 @@ class AuthController extends Controller
             Cache::put($email, $otp, 600); // 600 seconds or 10 minutes
             $user = User::where('email', $email)->first();
             if (empty($user)) {
-                return $this->sendResponse('User not found', null, 404);
+                return $this->sendResponse('Unauthorized', null, 401);
             }
             if ($type == 'email') {
                 //
