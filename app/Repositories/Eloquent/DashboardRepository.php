@@ -11,6 +11,7 @@ use App\Models\MediaResource;
 use App\Models\News;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\Videos;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -237,8 +238,8 @@ class DashboardRepository implements DashboardRepositoryInterface
         $project = Project::where('company_id', $id)->count();
         $media = MediaResource::where('company_id', $id)->count();
         $news = News::where('company_id', $id)->count();
-
-        $total = $product + $project + $media + $news;
+        $video = Videos::where('company_id', $id)->count();
+        $total = $product + $project + $media + $news + $video;
         return $total;
     }
 }
