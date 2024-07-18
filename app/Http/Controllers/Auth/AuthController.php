@@ -102,12 +102,23 @@ class AuthController extends Controller
                     . $otp;
                 $wa->WhatsappMessage();
             }
-            return $this->sendResponse('Send OTP successful', null, 200);
+
+            // Censor email and phone
+            $censoredEmail = $this->censorEmail($email);
+            $censoredPhone = $this->censorPhone($user->phone, $user->prefix_phone);
+
+            $responsePayload = [
+                'email' => $censoredEmail,
+                'phone' => $censoredPhone
+            ];
+
+            return $this->sendResponse('Send OTP successful', $responsePayload, 200);
         } catch (\Exception $e) {
             // Return generic error response
             return $this->sendResponse('An error occurred', null, 500);
         }
     }
+
 
     public function verifyOtp(Request $request)
     {
@@ -142,5 +153,32 @@ class AuthController extends Controller
             // Return a generic error response if an exception occurs
             return $this->sendResponse('An error occurred: ' . $e->getMessage(), null, 500);
         }
+    }
+
+    private function censorEmail($email)
+    {
+        $emailParts = explode("@", $email);
+        $name = $emailParts[0];
+        $domain = $emailParts[1];
+        $nameLength = strlen($name);
+
+        if ($nameLength <= 2) {
+            $censoredName = str_repeat('*', $nameLength);
+        } else {
+            $censoredName = substr($name, 0, 1) . str_repeat('*', $nameLength - 2) . substr($name, -1);
+        }
+
+        return $censoredName . '@' . $domain;
+    }
+
+    private function censorPhone($phone, $prefix)
+    {
+        $phoneLength = strlen($phone);
+        if ($phoneLength <= 4) {
+            $censoredPhone = str_repeat('*', $phoneLength);
+        } else {
+            $censoredPhone = $prefix . str_repeat('*', $phoneLength - 4) . substr($phone, -4);
+        }
+        return $censoredPhone;
     }
 }
