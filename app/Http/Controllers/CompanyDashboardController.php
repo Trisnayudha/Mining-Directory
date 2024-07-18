@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
 
-class AdminDashboardController extends Controller
+class CompanyDashboardController extends Controller
 {
     use ResponseHelper; // Gunakan trait di sini
 
