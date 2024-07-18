@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -57,9 +58,11 @@ class RegisterController extends Controller
             });
             DB::commit(); // Commit transaksi jika tidak ada masalah
             return $this->sendResponse('User registered successfully', null, 201);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return $this->sendResponse('Validation error', $e->errors(), 422);
         } catch (\Exception $e) {
-            // Return generic error response
-            DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
             return $this->sendResponse('An error occurred', ['error' => $e->getMessage()], 500);
         }
     }

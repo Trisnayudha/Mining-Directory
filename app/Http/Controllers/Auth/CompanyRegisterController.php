@@ -99,6 +99,7 @@ class CompanyRegisterController extends Controller
                 'postal_code' => 'required',
                 'prefix_phone_company' => 'required',
                 'phone_company' => 'required',
+                'company_name' => 'required'
             ]);
 
             $user = Company::find($request->user_id);
@@ -119,6 +120,8 @@ class CompanyRegisterController extends Controller
             $user->verification_token = Str::random(60);
             $user->marketing = $request->marketing;
             $user->explore = $request->explore;
+            $user->company_name = $request->company_name;
+            $user->slug = Str::slug($request->company_name);
 
             $user->save();
 

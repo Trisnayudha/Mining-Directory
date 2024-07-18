@@ -58,4 +58,11 @@ class CompanyDashboardController extends Controller
         $data = $this->dashboard->listBusinessCard($userId, $request);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function visitAnalyts(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->dashboard->visitAnalyts($userId, $request);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }
