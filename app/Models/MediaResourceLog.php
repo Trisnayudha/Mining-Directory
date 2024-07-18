@@ -15,4 +15,9 @@ class MediaResourceLog extends Model
         'media_resource_id',
         'users_id'
     ];
+
+    public function mediaResource()
+    {
+        return $this->belongsTo(MediaResource::class);
+    }
 }

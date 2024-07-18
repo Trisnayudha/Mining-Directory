@@ -15,4 +15,9 @@ class NewsLog extends Model
         'news_id',
         'users_id'
     ];
+
+    public function news()
+    {
+        return $this->belongsTo(News::class);
+    }
 }

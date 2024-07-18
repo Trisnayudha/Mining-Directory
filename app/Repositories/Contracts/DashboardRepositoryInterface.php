@@ -11,5 +11,6 @@ interface DashboardRepositoryInterface
     public function listInquiry($id, $request);
     public function approveInquiry($request);
     public function listBusinessCard($id, $request);
-    public function visitAnalyts($id, $request);
+    public function visitAnalyst($id, $request);
+    public function assetAnalyst($id, $request);
 }

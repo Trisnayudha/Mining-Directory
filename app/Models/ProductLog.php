@@ -15,4 +15,9 @@ class ProductLog extends Model
         'product_id',
         'users_id'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

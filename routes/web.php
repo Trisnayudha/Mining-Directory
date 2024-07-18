@@ -102,7 +102,8 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->get('/dashboard-list-of-inquiry', ['uses' => 'CompanyDashboardController@listInquiry']);
             $router->post('/action-inquiry', ['uses' => 'CompanyDashboardController@approveInquiry']);
             $router->get('/dashboard-list-of-businesscard', ['uses' => 'CompanyDashboardController@listBusinessCard']);
-            $router->get('/dashboard-visit-analyst', ['uses' => 'CompanyDashboardController@visitAnalyts']);
+            $router->get('/dashboard-visit-analyst', ['uses' => 'CompanyDashboardController@visitAnalyst']);
+            $router->get('/dashboard-asset-analyst', ['uses' => 'CompanyDashboardController@assetAnalyst']);
         });
     });
 

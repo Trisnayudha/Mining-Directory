@@ -15,4 +15,9 @@ class VideosLog extends Model
         'video_id',
         'users_id'
     ];
+
+    public function video()
+    {
+        return $this->belongsTo(Videos::class);
+    }
 }

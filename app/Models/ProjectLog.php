@@ -15,4 +15,9 @@ class ProjectLog extends Model
         'project_id',
         'users_id'
     ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

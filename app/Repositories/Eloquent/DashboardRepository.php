@@ -8,10 +8,15 @@ use App\Models\CompanyInquiry;
 use App\Models\CompanyLog;
 use App\Models\Example;
 use App\Models\MediaResource;
+use App\Models\MediaResourceLog;
 use App\Models\News;
+use App\Models\NewsLog;
 use App\Models\Product;
+use App\Models\ProductLog;
 use App\Models\Project;
+use App\Models\ProjectLog;
 use App\Models\Videos;
+use App\Models\VideosLog;
 use App\Repositories\Contracts\DashboardRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -101,7 +106,7 @@ class DashboardRepository implements DashboardRepositoryInterface
             ->where('company_id', $id)->paginate($limit);
     }
 
-    public function visitAnalyts($companyId, $request)
+    public function visitAnalyst($companyId, $request)
     {
         $query = CompanyLog::where('company_id', $companyId);
 
@@ -218,6 +223,101 @@ class DashboardRepository implements DashboardRepositoryInterface
         }
 
         return $formattedData;
+    }
+
+    public function assetAnalyst($companyId, $request)
+    {
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+        $currentWeek = Carbon::now()->weekOfYear;
+
+        // Initialize visit counts for each asset type
+        $visitCounts = [
+            'Project' => 0,
+            'News' => 0,
+            'Product' => 0,
+            'Video' => 0,
+            'Media Resource' => 0,
+        ];
+
+        if ($request->input('filter') == 'year') {
+            $year = $request->input('year', $currentYear);
+
+            $visitCounts['Project'] = ProjectLog::whereHas('project', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->count();
+
+            $visitCounts['News'] = NewsLog::whereHas('news', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->count();
+
+            $visitCounts['Product'] = ProductLog::whereHas('product', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->count();
+
+            $visitCounts['Video'] = VideosLog::whereHas('video', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->count();
+
+            $visitCounts['Media Resource'] = MediaResourceLog::whereHas('mediaResource', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->count();
+        } elseif ($request->input('filter') == 'month') {
+            $year = $request->input('year', $currentYear);
+            $month = $request->input('month', $currentMonth);
+
+            $visitCounts['Project'] = ProjectLog::whereHas('project', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->whereMonth('created_at', $month)->count();
+
+            $visitCounts['News'] = NewsLog::whereHas('news', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->whereMonth('created_at', $month)->count();
+
+            $visitCounts['Product'] = ProductLog::whereHas('product', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->whereMonth('created_at', $month)->count();
+
+            $visitCounts['Video'] = VideosLog::whereHas('video', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->whereMonth('created_at', $month)->count();
+
+            $visitCounts['Media Resource'] = MediaResourceLog::whereHas('mediaResource', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereYear('created_at', $year)->whereMonth('created_at', $month)->count();
+        } elseif ($request->input('filter') == 'week') {
+            $year = $request->input('year', $currentYear);
+            $month = $request->input('month', $currentMonth);
+            $week = $request->input('week', $currentWeek);
+
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
+
+            $visitCounts['Project'] = ProjectLog::whereHas('project', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+
+            $visitCounts['News'] = NewsLog::whereHas('news', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+
+            $visitCounts['Product'] = ProductLog::whereHas('product', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+
+            $visitCounts['Video'] = VideosLog::whereHas('video', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+
+            $visitCounts['Media Resource'] = MediaResourceLog::whereHas('media_resouce', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+        }
+
+        return [
+            'series' => array_values($visitCounts),
+            'labels' => array_keys($visitCounts)
+        ];
     }
 
 

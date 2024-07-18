@@ -59,10 +59,17 @@ class CompanyDashboardController extends Controller
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
-    public function visitAnalyts(Request $request)
+    public function visitAnalyst(Request $request)
     {
         $userId = $this->getAuthenticatedUserId();
-        $data = $this->dashboard->visitAnalyts($userId, $request);
+        $data = $this->dashboard->visitAnalyst($userId, $request);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
+
+    public function assetAnalyst(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->dashboard->assetAnalyst($userId, $request);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 }
