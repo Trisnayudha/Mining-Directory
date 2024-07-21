@@ -97,7 +97,7 @@ class AuthController extends Controller
             } else {
                 //
                 $wa = new WhatsappApi();
-                $wa->phone = $user->phone;
+                $wa->phone =  $user->prefix_phone . $user->phone;
                 $wa->message = 'OTP: '
                     . $otp;
                 $wa->WhatsappMessage();
