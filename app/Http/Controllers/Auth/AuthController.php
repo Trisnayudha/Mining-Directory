@@ -94,7 +94,7 @@ class AuthController extends Controller
                 $sendEmail->name_sender = env('MAIL_FROM_NAME');
                 $sendEmail->to = $email;
                 $sendEmail->sendEmail();
-            } else {
+            } elseif($type == 'sms') {
                 //
                 $wa = new WhatsappApi();
                 $wa->phone =  $user->prefix_phone . $user->phone;
