@@ -22,4 +22,17 @@ class CompanyInformationRepository implements CompanyInformationRepositoryInterf
     {
         return $this->model->where('id', $id)->first();
     }
+
+    public function store($id, $request)
+    {
+        $user = $this->model->where('id', $id)->first();
+
+        // Mengecualikan password dari data yang akan di-update
+        $data = $request->except('password');
+
+        // Update data user tanpa password
+        $user->update($data);
+
+        return $user;
+    }
 }

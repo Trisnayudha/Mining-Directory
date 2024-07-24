@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\CompanyInformationRepository;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CompanyInformationController extends Controller
@@ -34,7 +35,10 @@ class CompanyInformationController extends Controller
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
-    public function store()
+    public function store(Request $request)
     {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->company->store($userId, $request);
+        return $this->sendResponse('Successfully show data', $data, 200);
     }
 }

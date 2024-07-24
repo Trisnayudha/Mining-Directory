@@ -106,6 +106,7 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->get('/dashboard-asset-analyst', ['uses' => 'CompanyDashboardController@assetAnalyst']);
 
             $router->get('/company-information', ['uses' => 'CompanyInformationController@index']);
+            $router->post('/company-information', ['uses' => 'CompanyInformationController@store']);
         });
     });
 
