@@ -100,7 +100,7 @@ class CompanyAuthController extends Controller
             }
             // Censor email and phone
             $censoredEmail = $this->censorEmail($email);
-            $censoredPhone = $this->censorPhone($user->phone, $user->prefix_phone);
+            $censoredPhone = $this->censorPhone($user->phone_representative, $user->prefix_phone_company);
 
             $responsePayload = [
                 'email' => $censoredEmail,
