@@ -134,7 +134,7 @@ class CompanyAuthController extends Controller
                 }
 
                 // Manually create a token for the user
-                $token = JWTAuth::fromUser($user);
+                $token = JWTAuth::claims(['role' => 'company'])->fromUser($user);
 
                 // Return success response along with the token and user data
                 return $this->sendResponse('Login successful', ['token' => $token, 'company' => $user], 200);
