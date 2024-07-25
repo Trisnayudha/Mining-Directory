@@ -112,6 +112,11 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->post('/company-address', ['uses' => 'CompanyAddressController@store']);
             $router->put('/company-address/{id}', ['uses' => 'CompanyAddressController@update']);
             $router->delete('/company-address/{id}', ['uses' => 'CompanyAddressController@delete']);
+
+            $router->get('/company-representative', ['uses' => 'CompanyRepresentativeController@index']);
+            $router->post('/company-representative', ['uses' => 'CompanyRepresentativeController@store']);
+            $router->put('/company-representative/{id}', ['uses' => 'CompanyRepresentativeController@update']);
+            $router->delete('/company-representative/{id}', ['uses' => 'CompanyRepresentativeController@delete']);
         });
     });
 
