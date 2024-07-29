@@ -34,6 +34,10 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     });
 });
 
+$router->get('countries', 'CountryStateCityController@getCountries');
+$router->get('countries/{countryId}/states', 'CountryStateCityController@getStates');
+$router->get('countries/{countryId}/states/{stateId}/cities', 'CountryStateCityController@getCities');
+
 $router->group(['middleware' => 'log.user.activity'], function () use ($router) {
 
     $router->get('home/carousel', ['uses' => 'HomeController@carousel']);
@@ -117,6 +121,15 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->post('/company-representative', ['uses' => 'CompanyRepresentativeController@store']);
             $router->put('/company-representative/{id}', ['uses' => 'CompanyRepresentativeController@update']);
             $router->delete('/company-representative/{id}', ['uses' => 'CompanyRepresentativeController@delete']);
+
+
+            // Company Products
+            $router->get('/company-products', ['uses' => 'CompanyProductController@index']);
+            $router->post('/company-products', ['uses' => 'CompanyProductController@store']);
+            $router->get('/company-products/{slug}/edit', ['uses' => 'CompanyProductController@edit']);
+            $router->delete('/company-products/{slug}', ['uses' => 'CompanyProductController@destroy']);
+            $router->put('/company-products', ['uses' => 'CompanyProductController@update']);
+            $router->get('/company-products/listing', ['uses' => 'CompanyProductController@listing']);
         });
     });
 
