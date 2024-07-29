@@ -23,8 +23,9 @@ class Product extends Model
         'file',
         'views',
         'download',
-        'category_media_resource',
+        'category_product',
         'location',
+        'status'
 
     ];
     // Relasi One-to-Many dengan ProductsAsset

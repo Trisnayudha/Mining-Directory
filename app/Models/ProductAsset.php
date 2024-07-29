@@ -17,7 +17,8 @@ class ProductAsset extends Model
      */
     protected $fillable = [
         'product_id',
-        'asset'
+        'asset',
+        'asset_type'
 
     ];
 }

@@ -127,9 +127,9 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->get('/company-products', ['uses' => 'CompanyProductController@index']);
             $router->post('/company-products', ['uses' => 'CompanyProductController@store']);
             $router->get('/company-products/{slug}/edit', ['uses' => 'CompanyProductController@edit']);
-            $router->delete('/company-products/{slug}', ['uses' => 'CompanyProductController@destroy']);
-            $router->put('/company-products', ['uses' => 'CompanyProductController@update']);
-            $router->get('/company-products/listing', ['uses' => 'CompanyProductController@listing']);
+            $router->post('/company-products-delete/{slug}', ['uses' => 'CompanyProductController@destroy']);
+            $router->post('/company-products/{id}', ['uses' => 'CompanyProductController@update']);
+            $router->post('/company-products-listing', ['uses' => 'CompanyProductController@listing']);
         });
     });
 
