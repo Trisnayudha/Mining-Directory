@@ -130,6 +130,14 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->post('/company-products-delete/{slug}', ['uses' => 'CompanyProductController@destroy']);
             $router->post('/company-products/{id}', ['uses' => 'CompanyProductController@update']);
             $router->post('/company-products-listing', ['uses' => 'CompanyProductController@listing']);
+
+            //Company Projects
+            $router->get('/company-projects', ['uses' => 'CompanyProjectController@index']);
+            $router->post('/company-projects', ['uses' => 'CompanyProjectController@store']);
+            $router->get('/company-projects/{slug}/edit', ['uses' => 'CompanyProjectController@edit']);
+            $router->post('/company-projects-delete/{slug}', ['uses' => 'CompanyProjectController@destroy']);
+            $router->post('/company-projects/{id}', ['uses' => 'CompanyProjectController@update']);
+            $router->post('/company-projects-listing', ['uses' => 'CompanyProjectController@listing']);
         });
     });
 

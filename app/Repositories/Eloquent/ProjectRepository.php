@@ -3,17 +3,21 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Project;
+use App\Models\ProjectCategory;
 use App\Repositories\Contracts\ProjectRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ProjectRepository implements ProjectRepositoryInterface
 {
-    protected $model;
+    protected $project;
+    protected $projectCategory;
 
-    public function __construct(Project $model)
+    public function __construct(Project $project, ProjectCategory $projectCategory)
     {
-        $this->model = $model;
+        $this->project = $project;
+        $this->projectCategory = $projectCategory;
     }
 
     public function findSearch($request)
@@ -24,7 +28,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         $paginate = $request->paginate ?? 12; // Default to 12 if not provided
         $slug = $request->slug;
 
-        $query = $this->model->newQuery();
+        $query = $this->project->newQuery();
         // Join with category and subcategory tables
         $query->join('company', 'company.id', '=', 'projects.company_id')
             ->leftJoin('project_category_list', 'project_category_list.project_id', '=', 'projects.id')
@@ -69,7 +73,7 @@ class ProjectRepository implements ProjectRepositoryInterface
 
     public function detail($slug)
     {
-        $project = $this->model->newQuery()
+        $project = $this->project->newQuery()
             ->join('company', 'company.id', 'projects.company_id')
             ->where('projects.slug', $slug)
             ->select(
@@ -85,6 +89,7 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'projects.description',
                 'projects.file',
                 'projects.description',
+                'projects.image',
             )->with(['projectCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
             }])
@@ -97,5 +102,216 @@ class ProjectRepository implements ProjectRepositoryInterface
         }
 
         return $project;
+    }
+
+    public function cIndex($companyId)
+    {
+        return  $this->project->where('company_id', $companyId)
+            ->with(['projectCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])->select('id', 'title', 'slug', 'views', 'download', 'image', 'status')->orderby('id', 'desc')->get();
+    }
+
+    public function cStore($companyId, $request)
+    {
+        // Mulai transaksi
+        DB::beginTransaction();
+
+        try {
+            // Simpan data proyek
+            $projectData = $request->only([
+                'title',
+                'description',
+                'location',
+                'status'
+            ]);
+
+            // Buat slug berdasarkan title
+            $projectData['slug'] = Str::slug($request->input('title') . '-' . time());
+            $projectData['company_id'] = $companyId;
+
+            // Simpan file PDF, jika ada
+            if ($request->hasFile('file')) {
+                $pdfFile = $request->file('file');
+                $pdfName = time() . '.' . $pdfFile->getClientOriginalExtension();
+                $pdfPath = $pdfFile->storeAs('public/files', $pdfName);
+                $projectData['file'] = url('storage/files/' . $pdfName);
+            }
+
+            // Simpan file gambar, jika ada
+            if ($request->hasFile('image')) {
+                $imageFile = $request->file('image');
+                $imageName = time() . '.' . $imageFile->getClientOriginalExtension();
+                $imagePath = $imageFile->storeAs('public/images', $imageName);
+                $projectData['image'] = url('storage/images/' . $imageName);
+            }
+
+            $project = $this->project->create($projectData);
+
+            // Simpan data categories
+            if ($request->has('categories')) {
+                foreach ($request->categories as $categoryId) {
+                    $this->projectCategory->create([
+                        'project_id' => $project->id,
+                        'category_id' => $categoryId
+                    ]);
+                }
+            }
+
+            // Commit transaksi
+            DB::commit();
+
+            return $project;
+        } catch (\Exception $e) {
+            // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function cUpdate($productId, $request)
+    {
+        // Mulai transaksi
+        DB::beginTransaction();
+
+        try {
+            // Temukan produk
+            $product = $this->project->findOrFail($productId);
+
+            // Update data produk
+            $productData = $request->only([
+                'title',
+                'description',
+                'views',
+                'download',
+                'status'
+            ]);
+
+            // Update file PDF, jika ada
+            if ($request->hasFile('file')) {
+                $pdfFile = $request->file('file');
+                $pdfName = time() . '.' . $pdfFile->getClientOriginalExtension();
+                $pdfPath = $pdfFile->storeAs('public/files', $pdfName);
+                $productData['file'] = url('storage/files/' . $pdfName);
+            }
+
+            // Simpan file gambar, jika ada
+            if ($request->hasFile('image')) {
+                $imageFile = $request->file('image');
+                $imageName = time() . '.' . $imageFile->getClientOriginalExtension();
+                $imagePath = $imageFile->storeAs('public/images', $imageName);
+                $projectData['image'] = url('storage/images/' . $imageName);
+            }
+            // Update produk
+            $product->update($productData);
+            // Update data categories
+            if ($request->has('categories')) {
+                $newCategories = $request->input('categories');
+
+                // Hapus categories yang tidak ada dalam data baru
+                $existingCategories = $this->projectCategory->where('project_id', $product->id)->get();
+                foreach ($existingCategories as $existingCategory) {
+                    if (!in_array($existingCategory->category_id, $newCategories)) {
+                        $existingCategory->delete();
+                    }
+                }
+
+                // Tambahkan categories baru yang tidak ada dalam data lama
+                foreach ($newCategories as $categoryId) {
+                    if (!$existingCategories->contains('category_id', $categoryId)) {
+                        $this->projectCategory->create([
+                            'project_id' => $product->id,
+                            'category_id' => $categoryId
+                        ]);
+                    }
+                }
+            }
+
+            // Commit transaksi
+            DB::commit();
+
+            return $product;
+        } catch (\Exception $e) {
+            // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function cEdit($companyId, $slug)
+    {
+        $project = $this->project->newQuery()
+            ->where('projects.slug', $slug)
+            ->select(
+                'projects.id',
+                'projects.title',
+                'projects.views',
+                'projects.download',
+                'projects.slug',
+                'projects.description',
+                'projects.file',
+                'projects.description',
+                'projects.image',
+            )->with(['projectCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
+            ->first();
+
+        return $project;
+    }
+
+    public function cDestroy($companyId, $slug)
+    {
+        // Mulai transaksi
+        DB::beginTransaction();
+
+        try {
+            // Temukan produk berdasarkan companyId dan slug
+            $project = $this->project->where('company_id', $companyId)->where('slug', $slug)->firstOrFail();
+
+            // Hapus categories terkait
+            $this->projectCategory->where('project_id', $project->id)->delete();
+
+            // Hapus produk
+            $project->delete();
+
+            // Commit transaksi
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'project deleted successfully']);
+        } catch (\Exception $e) {
+            // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+
+    public function clisting($companyId, $request)
+    {
+        // Mulai transaksi
+        DB::beginTransaction();
+
+        try {
+            // Dapatkan product ID dari request
+            $projectId = $request->input('project_id');
+            $status = $request->input('status'); // "draft" or "publish"
+
+            // Temukan produk berdasarkan companyId dan projectId
+            $project = $this->project->where('company_id', $companyId)->where('id', $projectId)->firstOrFail();
+
+            // Ubah status produk
+            $project->status = $status;
+            $project->save();
+
+            // Commit transaksi
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'project status updated successfully']);
+        } catch (\Exception $e) {
+            // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

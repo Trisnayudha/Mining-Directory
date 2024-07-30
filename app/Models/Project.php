@@ -25,8 +25,8 @@ class Project extends Model
         'download',
         'category_media',
         'image',
-        'location'
-
+        'location',
+        'status'
     ];
     public function projectCategories()
     {
