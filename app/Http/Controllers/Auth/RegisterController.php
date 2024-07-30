@@ -46,7 +46,9 @@ class RegisterController extends Controller
                 'password' => app('hash')->make($request->password),
                 'verification_token' => Str::random(60),
                 'marketing' => $request->marketing,
-                'explore' => $request->explore
+                'explore' => $request->explore,
+                'company_name' => $request->company_name,
+                'job_title' => $request->job_title
             ]);
             $user->save();
 
