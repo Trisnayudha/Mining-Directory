@@ -99,7 +99,7 @@ class CompanyRegisterController extends Controller
                 'postal_code' => 'required',
                 'prefix_phone_company' => 'required',
                 'phone_company' => 'required',
-                'company_name' => 'required'
+                'company_name' => 'required',
             ]);
 
             $user = Company::find($request->user_id);

@@ -48,7 +48,8 @@ class RegisterController extends Controller
                 'marketing' => $request->marketing,
                 'explore' => $request->explore,
                 'company_name' => $request->company_name,
-                'job_title' => $request->job_title
+                'job_title' => $request->job_title,
+                'address' => $request->company_address,
             ]);
             $user->save();
 
