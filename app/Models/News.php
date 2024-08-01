@@ -23,7 +23,8 @@ class News extends Model
         'slug',
         'sub_title',
         'description',
-        'image'
+        'image',
+        'status'
 
     ];
     public function newsCategories()
