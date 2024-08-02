@@ -146,6 +146,22 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->post('/company-news-delete/{slug}', ['uses' => 'CompanyNewsController@destroy']);
             $router->post('/company-news/{id}', ['uses' => 'CompanyNewsController@update']);
             $router->post('/company-news-listing', ['uses' => 'CompanyNewsController@listing']);
+
+            //Company Media Resource
+            $router->get('/company-media', ['uses' => 'CompanyMediaController@index']);
+            $router->post('/company-media', ['uses' => 'CompanyMediaController@store']);
+            $router->get('/company-media/{slug}/edit', ['uses' => 'CompanyMediaController@edit']);
+            $router->post('/company-media-delete/{slug}', ['uses' => 'CompanyMediaController@destroy']);
+            $router->post('/company-media/{id}', ['uses' => 'CompanyMediaController@update']);
+            $router->post('/company-media-listing', ['uses' => 'CompanyMediaController@listing']);
+
+            //Company Video
+            $router->get('/company-videos', ['uses' => 'CompanyVideosController@index']);
+            $router->post('/company-videos', ['uses' => 'CompanyVideosController@store']);
+            $router->get('/company-videos/{slug}/edit', ['uses' => 'CompanyVideosController@edit']);
+            $router->post('/company-videos-delete/{slug}', ['uses' => 'CompanyVideosController@destroy']);
+            $router->post('/company-videos/{id}', ['uses' => 'CompanyVideosController@update']);
+            $router->post('/company-videos-listing', ['uses' => 'CompanyVideosController@listing']);
         });
     });
 

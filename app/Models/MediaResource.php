@@ -24,7 +24,8 @@ class MediaResource extends Model
         'views',
         'download',
         'category_media',
-        'image'
+        'image',
+        'status'
 
     ];
 

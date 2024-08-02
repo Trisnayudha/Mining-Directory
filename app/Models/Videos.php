@@ -22,7 +22,7 @@ class Videos extends Model
         'description',
         'asset',
         'views',
-        'download'
+        'status'
 
     ];
     public function videoCategories()
