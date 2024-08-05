@@ -318,18 +318,16 @@ class DashboardRepository implements DashboardRepositoryInterface
             })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
         }
 
-        // Generate colors array
-        $colors = ["#92D3D3", "#60BEBE", "#2C6D6D", "#1B4242", "#124141"];
-
-        // Filter out asset types with zero visits
-        $filteredVisitCounts = array_filter($visitCounts, function ($count) {
-            return $count > 0;
-        });
-
         return [
-            'series' => array_values($filteredVisitCounts),
-            'labels' => array_keys($filteredVisitCounts),
-            'colors' => array_slice($colors, 0, count($filteredVisitCounts))
+            'series' => [
+                $visitCounts['Video'],
+                $visitCounts['Product'],
+                $visitCounts['News'],
+                $visitCounts['Project'],
+                $visitCounts['Media Resource']
+            ],
+            'labels' => ['Video', 'Product', 'News', 'Project', 'Media Resource'],
+            'colors' => ['#92D3D3', '#60BEBE', '#2C6D6D', '#1B4242', '#F5A623']
         ];
     }
 
