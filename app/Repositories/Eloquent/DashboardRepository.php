@@ -313,16 +313,26 @@ class DashboardRepository implements DashboardRepositoryInterface
                 $query->where('company_id', $companyId);
             })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
 
-            $visitCounts['Media Resource'] = MediaResourceLog::whereHas('media_resouce', function ($query) use ($companyId) {
+            $visitCounts['Media Resource'] = MediaResourceLog::whereHas('mediaResource', function ($query) use ($companyId) {
                 $query->where('company_id', $companyId);
             })->whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
         }
 
+        // Generate colors array
+        $colors = ["#92D3D3", "#60BEBE", "#2C6D6D", "#1B4242", "#124141"];
+
+        // Filter out asset types with zero visits
+        $filteredVisitCounts = array_filter($visitCounts, function ($count) {
+            return $count > 0;
+        });
+
         return [
-            'series' => array_values($visitCounts),
-            'labels' => array_keys($visitCounts)
+            'series' => array_values($filteredVisitCounts),
+            'labels' => array_keys($filteredVisitCounts),
+            'colors' => array_slice($colors, 0, count($filteredVisitCounts))
         ];
     }
+
 
 
 
