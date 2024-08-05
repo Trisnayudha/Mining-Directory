@@ -137,15 +137,15 @@ class DashboardRepository implements DashboardRepositoryInterface
             }
 
             $formattedData = [
-                'series' => [
+                'labels' => $months,
+                'data' => [
                     [
                         'name' => 'Visits',
-                        'data' => array_column($result, 'visits')
+                        'type' => 'column',
+                        'data' => array_column($result, 'visits'),
+                        'color' => '#00ceff' // Example color, adjust as needed
                     ]
-                ],
-                'categories' => array_map(function ($item) {
-                    return $item['month'];
-                }, $result)
+                ]
             ];
         } elseif ($request->input('filter') == 'month') {
             $query->whereYear('created_at', $currentYear)
@@ -169,15 +169,17 @@ class DashboardRepository implements DashboardRepositoryInterface
             }
 
             $formattedData = [
-                'series' => [
+                'labels' => array_map(function ($item) {
+                    return $item['week'];
+                }, $result),
+                'data' => [
                     [
                         'name' => 'Visits',
-                        'data' => array_column($result, 'visits')
+                        'type' => 'column',
+                        'data' => array_column($result, 'visits'),
+                        'color' => '#00ceff' // Example color, adjust as needed
                     ]
-                ],
-                'categories' => array_map(function ($item) {
-                    return $item['week'];
-                }, $result)
+                ]
             ];
         } elseif ($request->input('filter') == 'week') {
             $query->whereYear('created_at', $currentYear)
@@ -208,15 +210,15 @@ class DashboardRepository implements DashboardRepositoryInterface
             }
 
             $formattedData = [
-                'series' => [
+                'labels' => $daysOfWeek,
+                'data' => [
                     [
                         'name' => 'Visits',
-                        'data' => array_column($result, 'visits')
+                        'type' => 'column',
+                        'data' => array_column($result, 'visits'),
+                        'color' => '#00ceff' // Example color, adjust as needed
                     ]
-                ],
-                'categories' => array_map(function ($item) {
-                    return $item['day'];
-                }, $result)
+                ]
             ];
         } else {
             $formattedData = [];
@@ -224,6 +226,8 @@ class DashboardRepository implements DashboardRepositoryInterface
 
         return $formattedData;
     }
+
+
 
     public function assetAnalyst($companyId, $request)
     {
