@@ -338,7 +338,6 @@ class DashboardRepository implements DashboardRepositoryInterface
         ];
     }
 
-
     private function calculatePercentage($current, $previous)
     {
         if ($previous == 0) {
@@ -358,7 +357,7 @@ class DashboardRepository implements DashboardRepositoryInterface
 
         $query = CompanyLog::where('company_id', $id);
 
-        // Current period data
+        // Current and previous period data
         if ($filter === 'year') {
             $currentCount = $query->whereYear('created_at', $currentYear)->count();
             $previousCount = $query->whereYear('created_at', $currentYear - 1)->count();
@@ -382,7 +381,8 @@ class DashboardRepository implements DashboardRepositoryInterface
 
         return [
             'value' => $currentCount,
-            'percent' => $percentage
+            'percent' => $percentage,
+            'preview_value' => $previousCount
         ];
     }
 
@@ -396,7 +396,7 @@ class DashboardRepository implements DashboardRepositoryInterface
 
         $query = CompanyInquiry::where('company_id', $id);
 
-        // Current period data
+        // Current and previous period data
         if ($filter === 'year') {
             $currentCount = $query->whereYear('created_at', $currentYear)->count();
             $previousCount = $query->whereYear('created_at', $currentYear - 1)->count();
@@ -420,9 +420,11 @@ class DashboardRepository implements DashboardRepositoryInterface
 
         return [
             'value' => $currentCount,
-            'percent' => $percentage
+            'percent' => $percentage,
+            'preview_value' => $previousCount
         ];
     }
+
 
 
     private function countAsset($id)
