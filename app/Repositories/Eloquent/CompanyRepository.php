@@ -444,8 +444,7 @@ class CompanyRepository implements CompanyRepositoryInterface
             '%' . $location . '%'
         ]);
 
-        // Select specific fields
-        $results = $query->get([
+        $results = $query->groupBy(
             'company.image',
             'company.company_name',
             'company.description',
@@ -454,6 +453,16 @@ class CompanyRepository implements CompanyRepositoryInterface
             'company.slug',
             'company.verify_company',
             'company.package'
+        )->get([
+            'company.image',
+            'company.company_name',
+            'company.description',
+            'company.location',
+            'company.video',
+            'company.slug',
+            'company.verify_company',
+            'company.package',
+            DB::raw('MIN(md_category_company.name) as category'), // Get the first category alphabetically
         ]);
 
         // Classify results into packages
