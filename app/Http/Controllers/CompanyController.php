@@ -84,16 +84,4 @@ class CompanyController extends Controller
         $data = $this->company->addInquiry($request, $userId);
         return $this->sendResponse('Successfully sent inquiry', $data, 200);
     }
-
-    public function checkCompany()
-    {
-        $userId = $this->getAuthenticatedUserId();
-        $data = $this->company->checkCompany($userId);
-
-        if (!$data) {
-            return $this->sendResponse('User not found', [], 404);
-        }
-
-        return $this->sendResponse('Successfully show data', $data, 200);
-    }
 }

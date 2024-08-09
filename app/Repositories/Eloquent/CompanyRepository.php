@@ -329,7 +329,10 @@ class CompanyRepository implements CompanyRepositoryInterface
             'company.banner_image',
             'company.verify_company',
             'company.slug'
-        )->first();
+        )->with(['companyCategories.mdCategory' => function ($query) {
+            $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+        }])
+            ->first();
         return $query;
     }
 
@@ -417,10 +420,11 @@ class CompanyRepository implements CompanyRepositoryInterface
             $query->where('md_sub_category_company.name', 'LIKE', '%' . $sub_category_name . '%');
         }
 
+        // Filter by package if provided
         if (!empty($package)) {
             $query->where('company.package', '=', $package);
         }
-        // Filter by package if provided
+
         // Order results to prioritize search fields
         $query->orderByRaw("
             CASE
@@ -440,8 +444,18 @@ class CompanyRepository implements CompanyRepositoryInterface
             '%' . $location . '%'
         ]);
 
-        // Get all results
-        $results = $query->get(['company.*']);
+        // Select specific fields
+        $results = $query->get([
+            'company.image',
+            'company.company_name',
+            'company.description',
+            'company.location',
+            'company.video',
+            'company.slug',
+            'company.verify_company',
+            'company.package'
+        ]);
+
         // Classify results into packages
         $platinum = $results->where('package', 'platinum');
         $gold = $results->where('package', 'gold');

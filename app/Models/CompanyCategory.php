@@ -19,4 +19,8 @@ class CompanyCategory extends Model
         'company_id',
         'category_id'
     ];
+    public function mdCategory()
+    {
+        return $this->belongsTo(MdCategoryCompany::class, 'category_id', 'id');
+    }
 }

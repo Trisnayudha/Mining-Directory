@@ -71,4 +71,9 @@ class Company extends Model implements AuthenticatableContract, JWTSubject
     {
         return [];
     }
+
+    public function companyCategories()
+    {
+        return $this->hasMany(CompanyCategory::class, 'company_id', 'id');
+    }
 }
