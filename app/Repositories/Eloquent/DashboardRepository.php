@@ -339,32 +339,14 @@ class DashboardRepository implements DashboardRepositoryInterface
     }
 
 
-    private function countInquiry($id, $request)
+    private function calculatePercentage($current, $previous)
     {
-        $currentYear = Carbon::now()->year;
-        $currentMonth = Carbon::now()->month;
-        $currentWeek = Carbon::now()->weekOfYear;
-
-        // Get the filter type (year, month, week) from the request
-        $filter = $request->input('filterInquiry', 'year'); // Default to 'year' if not provided
-
-        // Build the query based on the filter
-        $query = CompanyInquiry::where('company_id', $id);
-
-        if ($filter === 'year') {
-            $query->whereYear('created_at', $currentYear);
-        } elseif ($filter === 'month') {
-            $query->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $currentMonth);
-        } elseif ($filter === 'week') {
-            $query->whereYear('created_at', $currentYear)
-                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek);
+        if ($previous == 0) {
+            return $current > 0 ? 100 : 0; // Jika sebelumnya 0 dan sekarang ada nilai, maka naik 100%
         }
 
-        // Return the count
-        return $query->count();
+        return (($current - $previous) / $previous) * 100;
     }
-
 
     private function countVisitor($id, $request)
     {
@@ -372,24 +354,74 @@ class DashboardRepository implements DashboardRepositoryInterface
         $currentMonth = Carbon::now()->month;
         $currentWeek = Carbon::now()->weekOfYear;
 
-        // Get the filter type (year, month, week) from the request
         $filter = $request->input('filterVisitor', 'year'); // Default to 'year' if not provided
 
-        // Build the query based on the filter
         $query = CompanyLog::where('company_id', $id);
 
+        // Current period data
         if ($filter === 'year') {
-            $query->whereYear('created_at', $currentYear);
+            $currentCount = $query->whereYear('created_at', $currentYear)->count();
+            $previousCount = $query->whereYear('created_at', $currentYear - 1)->count();
         } elseif ($filter === 'month') {
-            $query->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $currentMonth);
+            $currentCount = $query->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth)
+                ->count();
+            $previousCount = $query->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth - 1)
+                ->count();
         } elseif ($filter === 'week') {
-            $query->whereYear('created_at', $currentYear)
-                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek);
+            $currentCount = $query->whereYear('created_at', $currentYear)
+                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek)
+                ->count();
+            $previousCount = $query->whereYear('created_at', $currentYear)
+                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek - 1)
+                ->count();
         }
 
-        // Return the count
-        return $query->count();
+        $percentage = $this->calculatePercentage($currentCount, $previousCount);
+
+        return [
+            'value' => $currentCount,
+            'percent' => $percentage
+        ];
+    }
+
+    private function countInquiry($id, $request)
+    {
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+        $currentWeek = Carbon::now()->weekOfYear;
+
+        $filter = $request->input('filterInquiry', 'year'); // Default to 'year' if not provided
+
+        $query = CompanyInquiry::where('company_id', $id);
+
+        // Current period data
+        if ($filter === 'year') {
+            $currentCount = $query->whereYear('created_at', $currentYear)->count();
+            $previousCount = $query->whereYear('created_at', $currentYear - 1)->count();
+        } elseif ($filter === 'month') {
+            $currentCount = $query->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth)
+                ->count();
+            $previousCount = $query->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth - 1)
+                ->count();
+        } elseif ($filter === 'week') {
+            $currentCount = $query->whereYear('created_at', $currentYear)
+                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek)
+                ->count();
+            $previousCount = $query->whereYear('created_at', $currentYear)
+                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek - 1)
+                ->count();
+        }
+
+        $percentage = $this->calculatePercentage($currentCount, $previousCount);
+
+        return [
+            'value' => $currentCount,
+            'percent' => $percentage
+        ];
     }
 
 
