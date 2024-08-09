@@ -339,17 +339,59 @@ class DashboardRepository implements DashboardRepositoryInterface
     }
 
 
-
-
     private function countInquiry($id, $request)
     {
-        return CompanyInquiry::where('company_id', $id)->count();
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+        $currentWeek = Carbon::now()->weekOfYear;
+
+        // Get the filter type (year, month, week) from the request
+        $filter = $request->input('filterInquiry', 'year'); // Default to 'year' if not provided
+
+        // Build the query based on the filter
+        $query = CompanyInquiry::where('company_id', $id);
+
+        if ($filter === 'year') {
+            $query->whereYear('created_at', $currentYear);
+        } elseif ($filter === 'month') {
+            $query->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth);
+        } elseif ($filter === 'week') {
+            $query->whereYear('created_at', $currentYear)
+                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek);
+        }
+
+        // Return the count
+        return $query->count();
     }
+
 
     private function countVisitor($id, $request)
     {
-        return CompanyLog::where('company_id', $id)->count();
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+        $currentWeek = Carbon::now()->weekOfYear;
+
+        // Get the filter type (year, month, week) from the request
+        $filter = $request->input('filterVisitor', 'year'); // Default to 'year' if not provided
+
+        // Build the query based on the filter
+        $query = CompanyLog::where('company_id', $id);
+
+        if ($filter === 'year') {
+            $query->whereYear('created_at', $currentYear);
+        } elseif ($filter === 'month') {
+            $query->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth);
+        } elseif ($filter === 'week') {
+            $query->whereYear('created_at', $currentYear)
+                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek);
+        }
+
+        // Return the count
+        return $query->count();
     }
+
 
     private function countAsset($id)
     {
