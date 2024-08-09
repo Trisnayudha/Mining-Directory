@@ -13,4 +13,5 @@ interface DashboardRepositoryInterface
     public function listBusinessCard($id, $request);
     public function visitAnalyst($id, $request);
     public function assetAnalyst($id, $request);
+    public function checkCompany($id);
 }

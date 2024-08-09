@@ -106,6 +106,13 @@ class DashboardRepository implements DashboardRepositoryInterface
             ->where('company_id', $id)->paginate($limit);
     }
 
+    public function checkCompany($id)
+    {
+        $data = $this->company->where('id', $id)->select('id', 'company_name', 'package', 'image')->first();
+        $data['package'] = $data['package'] ?? 'free';
+        return $data;
+    }
+
     public function visitAnalyst($companyId, $request)
     {
         $query = CompanyLog::where('company_id', $companyId);

@@ -72,4 +72,16 @@ class CompanyDashboardController extends Controller
         $data = $this->dashboard->assetAnalyst($userId, $request);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function checkCompany()
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->dashboard->checkCompany($userId);
+
+        if (!$data) {
+            return $this->sendResponse('User not found', [], 404);
+        }
+
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }
