@@ -54,6 +54,11 @@ class CompanyRepository implements CompanyRepositoryInterface
         return $this->model->where('package', 'platinum')->select('package', 'image', 'company_name', 'location', 'category_company', 'description', 'video', 'slug')->take(8)->get();
     }
 
+    public function checkCompany($id)
+    {
+        return $this->model->where('id', $id)->first();
+    }
+
     public function findList($request)
     {
         $package = $request->package;

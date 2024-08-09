@@ -14,4 +14,5 @@ interface CompanyRepositoryInterface
     public function addFavorite($request, $id);
     public function addBusinessCard($request, $id);
     public function addInquiry($request, $id);
+    public function checkCompany($id);
 }
