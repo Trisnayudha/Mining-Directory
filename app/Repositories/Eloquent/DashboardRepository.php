@@ -341,42 +341,52 @@ class DashboardRepository implements DashboardRepositoryInterface
     private function calculatePercentage($current, $previous)
     {
         if ($previous == 0) {
-            return $current > 0 ? 100 : 0; // Jika sebelumnya 0 dan sekarang ada nilai, maka naik 100%
+            return $current > 0 ? 100.00 : 0.00; // Jika sebelumnya 0 dan sekarang ada nilai, maka naik 100%
         }
 
-        return (($current - $previous) / $previous) * 100;
+        $percentage = (($current - $previous) / $previous) * 100;
+
+        // Membulatkan persentase ke dua angka di belakang koma
+        return number_format($percentage, 2);
     }
+
 
     private function countVisitor($id, $request)
     {
-        $currentYear = Carbon::now()->year;
-        $currentMonth = Carbon::now()->month;
-        $currentWeek = Carbon::now()->weekOfYear;
-
         $filter = $request->input('filterVisitor', 'year'); // Default to 'year' if not provided
 
-        $query = CompanyLog::where('company_id', $id);
-
-        // Current and previous period data
+        // Define the time periods for current and previous periods
         if ($filter === 'year') {
-            $currentCount = $query->whereYear('created_at', $currentYear)->count();
-            $previousCount = $query->whereYear('created_at', $currentYear - 1)->count();
+            $currentStart = Carbon::now()->startOfYear();
+            $currentEnd = Carbon::now()->endOfYear();
+            $previousStart = Carbon::now()->subYear()->startOfYear();
+            $previousEnd = Carbon::now()->subYear()->endOfYear();
         } elseif ($filter === 'month') {
-            $currentCount = $query->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $currentMonth)
-                ->count();
-            $previousCount = $query->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $currentMonth - 1)
-                ->count();
+            $currentStart = Carbon::now()->startOfMonth();
+            $currentEnd = Carbon::now()->endOfMonth();
+            $previousStart = Carbon::now()->subMonth()->startOfMonth();
+            $previousEnd = Carbon::now()->subMonth()->endOfMonth();
         } elseif ($filter === 'week') {
-            $currentCount = $query->whereYear('created_at', $currentYear)
-                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek)
-                ->count();
-            $previousCount = $query->whereYear('created_at', $currentYear)
-                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek - 1)
-                ->count();
+            $currentStart = Carbon::now()->startOfWeek();
+            $currentEnd = Carbon::now()->endOfWeek();
+            $previousStart = Carbon::now()->subWeek()->startOfWeek();
+            $previousEnd = Carbon::now()->subWeek()->endOfWeek();
         }
 
+        // Clone the query for previous count
+        $currentQuery = CompanyLog::where('company_id', $id)
+            ->whereBetween('created_at', [$currentStart, $currentEnd]);
+
+        $previousQuery = CompanyLog::where('company_id', $id)
+            ->whereBetween('created_at', [$previousStart, $previousEnd]);
+
+        // Get the count for the current period
+        $currentCount = $currentQuery->count();
+
+        // Get the count for the previous period
+        $previousCount = $previousQuery->count();
+
+        // Calculate the percentage change
         $percentage = $this->calculatePercentage($currentCount, $previousCount);
 
         return [
@@ -388,34 +398,40 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     private function countInquiry($id, $request)
     {
-        $currentYear = Carbon::now()->year;
-        $currentMonth = Carbon::now()->month;
-        $currentWeek = Carbon::now()->weekOfYear;
-
         $filter = $request->input('filterInquiry', 'year'); // Default to 'year' if not provided
 
-        $query = CompanyInquiry::where('company_id', $id);
-
-        // Current and previous period data
+        // Define the time periods for current and previous periods
         if ($filter === 'year') {
-            $currentCount = $query->whereYear('created_at', $currentYear)->count();
-            $previousCount = $query->whereYear('created_at', $currentYear - 1)->count();
+            $currentStart = Carbon::now()->startOfYear();
+            $currentEnd = Carbon::now()->endOfYear();
+            $previousStart = Carbon::now()->subYear()->startOfYear();
+            $previousEnd = Carbon::now()->subYear()->endOfYear();
         } elseif ($filter === 'month') {
-            $currentCount = $query->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $currentMonth)
-                ->count();
-            $previousCount = $query->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $currentMonth - 1)
-                ->count();
+            $currentStart = Carbon::now()->startOfMonth();
+            $currentEnd = Carbon::now()->endOfMonth();
+            $previousStart = Carbon::now()->subMonth()->startOfMonth();
+            $previousEnd = Carbon::now()->subMonth()->endOfMonth();
         } elseif ($filter === 'week') {
-            $currentCount = $query->whereYear('created_at', $currentYear)
-                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek)
-                ->count();
-            $previousCount = $query->whereYear('created_at', $currentYear)
-                ->where(DB::raw('WEEKOFYEAR(created_at)'), $currentWeek - 1)
-                ->count();
+            $currentStart = Carbon::now()->startOfWeek();
+            $currentEnd = Carbon::now()->endOfWeek();
+            $previousStart = Carbon::now()->subWeek()->startOfWeek();
+            $previousEnd = Carbon::now()->subWeek()->endOfWeek();
         }
 
+        // Clone the query for previous count
+        $currentQuery = CompanyInquiry::where('company_id', $id)
+            ->whereBetween('created_at', [$currentStart, $currentEnd]);
+
+        $previousQuery = CompanyInquiry::where('company_id', $id)
+            ->whereBetween('created_at', [$previousStart, $previousEnd]);
+
+        // Get the count for the current period
+        $currentCount = $currentQuery->count();
+
+        // Get the count for the previous period
+        $previousCount = $previousQuery->count();
+
+        // Calculate the percentage change
         $percentage = $this->calculatePercentage($currentCount, $previousCount);
 
         return [
@@ -424,8 +440,6 @@ class DashboardRepository implements DashboardRepositoryInterface
             'preview_value' => $previousCount
         ];
     }
-
-
 
     private function countAsset($id)
     {
