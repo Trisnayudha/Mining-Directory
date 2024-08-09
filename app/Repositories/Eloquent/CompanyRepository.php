@@ -430,11 +430,8 @@ class CompanyRepository implements CompanyRepositoryInterface
             CASE
                 WHEN company.company_name LIKE ? THEN 1
                 WHEN company.description LIKE ? THEN 2
-                WHEN company.value_1 LIKE ? THEN 3
-                WHEN company.value_2 LIKE ? THEN 3
-                WHEN company.value_3 LIKE ? THEN 3
-                WHEN company.location LIKE ? THEN 4
-                ELSE 5
+                WHEN company.location LIKE ? THEN 3
+                ELSE 4
             END", [
             '%' . $search . '%',
             '%' . $search . '%',
