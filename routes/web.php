@@ -101,7 +101,7 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
     //company
     $router->group(['middleware' => 'company.auth'], function () use ($router) {
         $router->group(['prefix' => 'api/company'], function () use ($router) {
-            $router->get('/', ['uses' => 'CompanyController@detail']);
+            $router->get('/', ['uses' => 'CompanyController@checkCompany']);
             $router->get('/dashboard-card', ['uses' => 'CompanyDashboardController@card']);
             $router->get('/dashboard-list-of-visitor', ['uses' => 'CompanyDashboardController@listVisitor']);
             $router->get('/dashboard-list-of-inquiry', ['uses' => 'CompanyDashboardController@listInquiry']);
