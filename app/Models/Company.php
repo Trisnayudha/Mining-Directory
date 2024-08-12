@@ -45,7 +45,8 @@ class Company extends Model implements AuthenticatableContract, JWTSubject
         'prefix_phone_representative',
         'phone_representative',
         'verify_email',
-        'password'
+        'password',
+        'prefix_phone_company'
     ];
 
     protected $hidden = [
