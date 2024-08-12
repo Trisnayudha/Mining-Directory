@@ -120,7 +120,7 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
 
             $router->get('/company-representative', ['uses' => 'CompanyRepresentativeController@index']);
             $router->post('/company-representative', ['uses' => 'CompanyRepresentativeController@store']);
-            $router->put('/company-representative/{id}', ['uses' => 'CompanyRepresentativeController@update']);
+            $router->post('/company-representative-update/{id}', ['uses' => 'CompanyRepresentativeController@update']);
             $router->delete('/company-representative/{id}', ['uses' => 'CompanyRepresentativeController@delete']);
 
 

@@ -34,7 +34,7 @@ class CompanyAddressController extends Controller
     public function store(Request $request)
     {
         $userId = $this->getAuthenticatedUserId();
-        $payload = $request->only(['type', 'town', 'country', 'phone', 'address']);
+        $payload = $request->only(['type', 'town', 'country', 'phone', 'address', 'city', 'province', 'postal_code']);
         $companyAddress = $this->company->store($userId, $payload);
 
         return $this->sendResponse('Successfully created address', $companyAddress, 201);
@@ -42,7 +42,7 @@ class CompanyAddressController extends Controller
 
     public function update(Request $request, $id)
     {
-        $payload = $request->only(['type', 'town', 'country', 'phone', 'address']);
+        $payload = $request->only(['type', 'town', 'country', 'phone', 'address', 'city', 'province', 'postal_code']);
         $companyAddress = $this->company->update($id, $payload);
 
         if ($companyAddress) {
