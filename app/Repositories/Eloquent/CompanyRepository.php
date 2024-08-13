@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File;
 
 class CompanyRepository implements CompanyRepositoryInterface
 {
@@ -372,10 +373,33 @@ class CompanyRepository implements CompanyRepositoryInterface
             // Menggabungkan data address dan representative ke dalam $query
             $query->address = DB::table('company_address')->where('company_id', $query->id)->get();
             $query->representative = DB::table('company_representative')->where('company_id', $query->id)->get();
+
+            // Load JSON data
+            $jsonPath = public_path('countries+states+cities.json');
+            $json = File::get($jsonPath);
+            $data = json_decode($json, true);
+
+            // Map IDs to names
+            $query->address = $query->address->map(function ($address) use ($data) {
+                // Find country name
+                $country = collect($data)->firstWhere('id', $address->country);
+                $address->country = $country['name'] ?? $address->country;
+
+                // Find state name
+                $state = collect($country['states'] ?? [])->firstWhere('id', $address->province);
+                $address->province = $state['name'] ?? $address->province;
+
+                // Find city name
+                $city = collect($state['cities'] ?? [])->firstWhere('id', $address->city);
+                $address->city = $city['name'] ?? $address->city;
+
+                return $address;
+            });
         }
 
         return $query;
     }
+
 
 
     public function findSearch($request)
