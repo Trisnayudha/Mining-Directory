@@ -25,8 +25,24 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function findHome()
     {
-        return $this->product->join('company', 'company.id', 'products.company_id')->select('products.*', 'company.company_name')->take(4)->get();
+        return $this->product
+            ->join('company', 'company.id', '=', 'products.company_id')
+            ->leftJoin('products_asset', function ($join) {
+                $join->on('products.id', '=', 'products_asset.product_id')
+                    ->where('products_asset.asset_type', '=', 'png');
+            })
+            ->select('products.*', 'company.company_name')
+            ->selectSub(function ($query) {
+                $query->from('products_asset')
+                    ->select('asset')
+                    ->whereColumn('products.id', 'products_asset.product_id')
+                    ->where('asset_type', 'png')
+                    ->limit(1);
+            }, 'asset')
+            ->take(4)
+            ->get();
     }
+
     public function findSearch($request)
     {
         $search = $request->search;
