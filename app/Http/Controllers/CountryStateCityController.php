@@ -28,10 +28,10 @@ class CountryStateCityController extends BaseController
 
     public function getCountries(Request $request)
     {
-        $countryId = $request->input('country_id');
+        $countryName = $request->input('country_name');
 
-        $countries = array_filter($this->data, function ($country) use ($countryId) {
-            return !$countryId || $country['id'] == $countryId;
+        $countries = array_filter($this->data, function ($country) use ($countryName) {
+            return !$countryName || stripos($country['name'], $countryName) !== false;
         });
 
         $countries = array_map(function ($country) {
@@ -46,10 +46,9 @@ class CountryStateCityController extends BaseController
     }
 
 
-
     public function getStates(Request $request, $countryId)
     {
-        $stateId = $request->input('state_id');
+        $stateName = $request->input('state_name');
 
         $states = array_filter($this->data, function ($item) use ($countryId) {
             return $item['id'] == $countryId;
@@ -57,8 +56,8 @@ class CountryStateCityController extends BaseController
 
         if (!empty($states)) {
             $states = reset($states)['states'];
-            $states = array_filter($states, function ($state) use ($stateId) {
-                return !$stateId || $state['id'] == $stateId;
+            $states = array_filter($states, function ($state) use ($stateName) {
+                return !$stateName || stripos($state['name'], $stateName) !== false;
             });
         } else {
             $states = [];
@@ -67,9 +66,10 @@ class CountryStateCityController extends BaseController
         return $this->sendResponse('Successfully show data', array_values($states), 200);
     }
 
+
     public function getCities(Request $request, $countryId, $stateId)
     {
-        $cityId = $request->input('city_id');
+        $cityName = $request->input('city_name');
 
         $country = array_filter($this->data, function ($item) use ($countryId) {
             return $item['id'] == $countryId;
@@ -83,8 +83,8 @@ class CountryStateCityController extends BaseController
 
             if (!empty($state)) {
                 $state = reset($state);
-                $cities = array_filter($state['cities'], function ($city) use ($cityId) {
-                    return !$cityId || $city['id'] == $cityId;
+                $cities = array_filter($state['cities'], function ($city) use ($cityName) {
+                    return !$cityName || stripos($city['name'], $cityName) !== false;
                 });
             } else {
                 $cities = [];
@@ -95,6 +95,7 @@ class CountryStateCityController extends BaseController
 
         return $this->sendResponse('Successfully show data', array_values($cities), 200);
     }
+
 
 
     protected function sendResponse($message, $data, $status)
