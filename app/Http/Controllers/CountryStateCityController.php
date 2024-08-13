@@ -28,43 +28,64 @@ class CountryStateCityController extends BaseController
 
     public function getCountries(Request $request)
     {
+        $searchName = $request->input('name');
+
+        $countries = array_filter($this->data, function ($country) use ($searchName) {
+            return !$searchName || stripos($country['name'], $searchName) !== false;
+        });
+
         $countries = array_map(function ($country) {
             return [
                 'id' => $country['id'],
                 'name' => $country['name'],
                 'iso2' => $country['iso2'],
             ];
-        }, $this->data);
-        return $this->sendResponse('Successfully show data', $countries, 200);
+        }, $countries);
+
+        return $this->sendResponse('Successfully show data', array_values($countries), 200);
     }
 
-    public function getStates(Request $request, $countryId)
+
+    public function getStates(Request $request, $countryIdOrName)
     {
-        $states = array_filter($this->data, function ($item) use ($countryId) {
-            return $item['id'] == $countryId;
-        });
+        $searchName = $request->input('name');
 
-        if (!empty($states)) {
-            $states = reset($states)['states'];
-        }
-
-        return $this->sendResponse('Successfully show data', $states, 200);
-    }
-
-    public function getCities(Request $request, $countryId, $stateId)
-    {
-        $country = array_filter($this->data, function ($item) use ($countryId) {
-            return $item['id'] == $countryId;
+        $country = array_filter($this->data, function ($item) use ($countryIdOrName) {
+            return $item['id'] == $countryIdOrName || stripos($item['name'], $countryIdOrName) !== false;
         });
 
         if (!empty($country)) {
             $country = reset($country);
-            $states = array_filter($country['states'], function ($state) use ($stateId) {
-                return $state['id'] == $stateId;
+            $states = array_filter($country['states'], function ($state) use ($searchName) {
+                return !$searchName || stripos($state['name'], $searchName) !== false;
+            });
+        } else {
+            $states = [];
+        }
+
+        return $this->sendResponse('Successfully show data', array_values($states), 200);
+    }
+
+
+    public function getCities(Request $request, $countryIdOrName, $stateIdOrName)
+    {
+        $searchName = $request->input('name');
+
+        $country = array_filter($this->data, function ($item) use ($countryIdOrName) {
+            return $item['id'] == $countryIdOrName || stripos($item['name'], $countryIdOrName) !== false;
+        });
+
+        if (!empty($country)) {
+            $country = reset($country);
+            $state = array_filter($country['states'], function ($state) use ($stateIdOrName) {
+                return $state['id'] == $stateIdOrName || stripos($state['name'], $stateIdOrName) !== false;
             });
 
-            if (!empty($states)) {
-                $cities = reset($states)['cities'];
+            if (!empty($state)) {
+                $state = reset($state);
+                $cities = array_filter($state['cities'], function ($city) use ($searchName) {
+                    return !$searchName || stripos($city['name'], $searchName) !== false;
+                });
             } else {
                 $cities = [];
             }
@@ -72,7 +93,7 @@ class CountryStateCityController extends BaseController
             $cities = [];
         }
 
-        return $this->sendResponse('Successfully show data', $cities, 200);
+        return $this->sendResponse('Successfully show data', array_values($cities), 200);
     }
 
     protected function sendResponse($message, $data, $status)
