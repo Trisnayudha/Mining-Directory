@@ -163,7 +163,7 @@ class ProductRepository implements ProductRepositoryInterface
             ->with(['products_asset' => function ($query) {
                 $query->select('product_id', 'asset', 'asset_type')
                     ->where('asset_type', 'image')
-                    ->take(1); // Mengambil satu data saja dengan asset_type = image
+                    ->first(); // Mengambil satu data saja dengan asset_type = image
             }, 'productCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
             }])->select('id', 'title', 'slug', 'views', 'download', 'status')->orderby('id', 'desc')->get();
