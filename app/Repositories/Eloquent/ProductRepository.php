@@ -159,14 +159,20 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function cIndex($companyId)
     {
-        return  $this->product->where('company_id', $companyId)
-            ->with(['products_asset' => function ($query) {
-                $query->select('product_id', 'asset', 'asset_type')
-                    ->where('asset_type', 'image')
-                    ->first(); // Mengambil satu data saja dengan asset_type = image
-            }, 'productCategories.mdCategory' => function ($query) {
+        return $this->product->where('company_id', $companyId)
+            ->with(['productCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
-            }])->select('id', 'title', 'slug', 'views', 'download', 'status')->orderby('id', 'desc')->get();
+            }])
+            ->select('id', 'title', 'slug', 'views', 'download', 'status')
+            ->addSelect([
+                'products_asset' => DB::table('products_asset')
+                    ->select('asset')
+                    ->whereColumn('products_asset.product_id', 'products.id')
+                    ->where('asset_type', 'image')
+                    ->limit(1)
+            ])
+            ->orderby('id', 'desc')
+            ->get();
     }
 
 
