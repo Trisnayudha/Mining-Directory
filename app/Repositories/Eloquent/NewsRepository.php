@@ -106,6 +106,11 @@ class NewsRepository implements NewsRepositoryInterface
         return $news;
     }
 
+    public function moreList($id)
+    {
+        $news = $this->news->newQuery();
+    }
+
     public function cIndex($companyId)
     {
         return  $this->news->where('company_id', $companyId)

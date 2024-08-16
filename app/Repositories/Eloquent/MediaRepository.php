@@ -99,6 +99,10 @@ class MediaRepository implements MediaRepositoryInterface
         return $media;
     }
 
+    public function moreList($id)
+    {
+        $media = $this->media->newQuery();
+    }
     public function cIndex($companyId)
     {
         return  $this->media->where('company_id', $companyId)

@@ -104,6 +104,11 @@ class ProjectRepository implements ProjectRepositoryInterface
         return $project;
     }
 
+    public function moreList($id)
+    {
+        $project = $this->project->newQuery();
+    }
+
     public function cIndex($companyId)
     {
         return  $this->project->where('company_id', $companyId)

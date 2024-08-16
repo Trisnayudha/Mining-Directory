@@ -139,6 +139,10 @@ class ProductRepository implements ProductRepositoryInterface
         return $product;
     }
 
+    public function moreList($id)
+    {
+        $results = $this->product->newQuery();
+    }
 
     public function cIndex($companyId)
     {
