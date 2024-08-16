@@ -35,4 +35,10 @@ class ProjectController extends Controller
         }
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function more($id)
+    {
+        $data = $this->project->moreList($id);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }

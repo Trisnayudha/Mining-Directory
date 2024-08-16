@@ -35,4 +35,10 @@ class NewsController extends Controller
         }
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function more($id)
+    {
+        $data = $this->news->moreList($id);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }

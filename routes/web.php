@@ -63,18 +63,22 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
 
     //Product
     $router->get('products/{slug}', ['uses' => 'ProductController@detail']);
+    $router->get('products/more-list/{id}', ['uses' => 'ProductController@more']);
 
     //Media Resource
     $router->get('media-resource/{slug}', ['uses' => 'MediaResourceController@detail']);
 
     //Project
     $router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
+    $router->get('project/more-list/{id}', ['uses' => 'ProjectController@more']);
 
     //Videos
     $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
+    $router->get('videos/more-list/{id}', ['uses' => 'VideoController@more']);
 
     //News
     $router->get('news/{slug}', ['uses' => 'NewsController@detail']);
+    $router->get('news/more-list/{id}', ['uses' => 'NewsController@more']);
 
     //Company
     $router->get('company/{slug}', ['uses' => 'CompanyController@detail']);

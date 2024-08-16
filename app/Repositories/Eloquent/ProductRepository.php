@@ -154,8 +154,38 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function moreList($id)
     {
-        $results = $this->product->newQuery();
+        $products = $this->product->where('products.id', '!=', $id)
+            ->join('company', 'company.id', '=', 'products.company_id')
+            ->select(
+                'products.id',
+                'products.title',
+                'products.slug',
+                DB::raw('LEFT(products.description, 100) as description_short')
+            )
+            ->addSelect([
+                'products_asset' => DB::table('products_asset')
+                    ->select('asset')
+                    ->whereColumn('products_asset.product_id', 'products.id')
+                    ->where('asset_type', 'image')
+                    ->limit(1)
+            ])
+            ->with(['productCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name')
+                    ->limit(1); // Mengambil hanya satu kategori
+            }])
+            ->orderby('id', 'desc')
+            ->get();
+
+        // Memastikan deskripsi diakhiri dengan "..." jika lebih dari 100 karakter
+        $products->each(function ($product) {
+            if (strlen($product->description_short) >= 100) {
+                $product->description_short .= '...';
+            }
+        });
+
+        return $products;
     }
+
 
     public function cIndex($companyId)
     {
@@ -178,6 +208,17 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function cStore($companyId, $request)
     {
+        // Validasi request
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'views' => 'nullable|integer',
+            'download' => 'nullable|integer',
+            'status' => 'required|string',
+            'file' => 'nullable|mimes:pdf|max:20480', // Maksimal 20MB untuk file PDF
+            'assets.*' => 'nullable|mimes:jpeg,png,jpg,mp4|max:20480', // Maksimal 20MB untuk setiap asset (gambar/video)
+        ]);
+
         // Mulai transaksi
         DB::beginTransaction();
 
@@ -230,6 +271,7 @@ class ProductRepository implements ProductRepositoryInterface
             throw $e;
         }
     }
+
 
     public function cUpdate($productId, $request)
     {

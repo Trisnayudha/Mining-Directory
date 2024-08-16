@@ -121,7 +121,7 @@ class NewsRepository implements NewsRepositoryInterface
 
     public function moreList($id)
     {
-        $news = $this->news->newQuery();
+        return $this->news->where('news.id', '!=', $id)->select('id', 'title', 'slug', 'image')->orderby('id', 'desc')->take(5)->get();
     }
 
     public function cIndex($companyId)
