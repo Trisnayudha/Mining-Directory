@@ -101,10 +101,23 @@ class NewsRepository implements NewsRepositoryInterface
         // Mengambil nama kategori
         if ($news && $news->newsCategories->isNotEmpty()) {
             $news->category_name = $news->newsCategories->first()->mdCategory->name;
-            unset($news->newsCategories); // Opsional: Hapus data projectCategories yang tidak perlu
+            unset($news->newsCategories); // Opsional: Hapus data newsCategories yang tidak perlu
         }
+
+        // Menambahkan URL Share
+        if ($news) {
+            $url = 'https://mining-directory.vercel.app/news/detail/' . $slug;
+            $news->share_links = [
+                'web' => $url,
+                'facebook' => 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($url),
+                'linkedin' => 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($url),
+                'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
+            ];
+        }
+
         return $news;
     }
+
 
     public function moreList($id)
     {

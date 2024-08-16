@@ -74,8 +74,8 @@ class ProjectRepository implements ProjectRepositoryInterface
     public function detail($slug)
     {
         $project = $this->project->newQuery()
-            ->join('company', 'company.id', 'projects.company_id')
-            ->where('projects.slug', $slug)
+            ->join('company', 'company.id', '=', 'projects.company_id')
+            ->where('projects.slug', '=', $slug)
             ->select(
                 'projects.id',
                 'company.company_name',
@@ -88,8 +88,7 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'projects.slug',
                 'projects.description',
                 'projects.file',
-                'projects.description',
-                'projects.image',
+                'projects.image'
             )->with(['projectCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
             }])
@@ -101,8 +100,20 @@ class ProjectRepository implements ProjectRepositoryInterface
             unset($project->projectCategories); // Opsional: Hapus data projectCategories yang tidak perlu
         }
 
+        // Menambahkan URL Share
+        if ($project) {
+            $url = 'https://mining-directory.vercel.app/project/detail/' . $slug;
+            $project->share_links = [
+                'web' => $url,
+                'facebook' => 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($url),
+                'linkedin' => 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($url),
+                'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
+            ];
+        }
+
         return $project;
     }
+
 
     public function moreList($id)
     {

@@ -73,8 +73,8 @@ class MediaRepository implements MediaRepositoryInterface
     public function detail($slug)
     {
         $media = $this->media->newQuery()
-            ->join('company', 'company.id', 'media_resource.company_id')
-            ->where('media_resource.slug', $slug)
+            ->join('company', 'company.id', '=', 'media_resource.company_id')
+            ->where('media_resource.slug', '=', $slug)
             ->select(
                 'media_resource.id',
                 'company.company_name',
@@ -85,7 +85,7 @@ class MediaRepository implements MediaRepositoryInterface
                 'media_resource.download',
                 'media_resource.description',
                 'media_resource.file',
-                'media_resource.image',
+                'media_resource.image'
             )->with(['mediaCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
             }])
@@ -96,8 +96,21 @@ class MediaRepository implements MediaRepositoryInterface
             $media->category_name = $media->mediaCategories->first()->mdCategory->name;
             unset($media->mediaCategories); // Opsional: Hapus data mediaCategories yang tidak perlu
         }
+
+        // Menambahkan URL Share
+        if ($media) {
+            $url = 'https://mining-directory.vercel.app/media/detail/' . $slug;
+            $media->share_links = [
+                'web' => $url,
+                'facebook' => 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($url),
+                'linkedin' => 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($url),
+                'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
+            ];
+        }
+
         return $media;
     }
+
 
     public function moreList($id)
     {

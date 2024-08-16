@@ -108,12 +108,13 @@ class ProductRepository implements ProductRepositoryInterface
             ->join('company', 'company.id', '=', 'products.company_id')
             ->where('products.slug', '=', $slug)
             ->select(
-                'products.id', // Pastikan untuk memilih 'id' dari produk untuk relasi
+                'products.id',
                 'company.company_name',
-                'company.package',
                 'company.slug as company_slug',
+                'company.package',
                 'company.image as company_image',
                 'products.title',
+                'products.slug',
                 'products.views',
                 'products.download',
                 'products.description',
@@ -136,8 +137,20 @@ class ProductRepository implements ProductRepositoryInterface
             unset($product->productCategories); // Opsional: Hapus data productCategories yang tidak perlu
         }
 
+        // Menambahkan URL Share
+        if ($product) {
+            $url = 'https://mining-directory.vercel.app/product/detail/' . $slug;
+            $product->share_links = [
+                'web' => $url,
+                'facebook' => 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($url),
+                'linkedin' => 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($url),
+                'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
+            ];
+        }
+
         return $product;
     }
+
 
     public function moreList($id)
     {
