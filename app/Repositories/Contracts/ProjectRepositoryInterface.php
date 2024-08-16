@@ -8,7 +8,7 @@ interface ProjectRepositoryInterface
 {
     public function findSearch($request);
     public function detail($slug);
-
+    public function moreList($id);
     public function cIndex($companyId);
     public function cStore($companyId, $request);
     public function cEdit($companyId, $slug);
