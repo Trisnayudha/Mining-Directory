@@ -120,6 +120,16 @@ class ProjectRepository implements ProjectRepositoryInterface
         return  $this->project->where('id', '!=', $id)->select('id', 'title', 'slug', 'description', 'image')->take(4)->get();
     }
 
+    public function download($slug)
+    {
+        $project = $this->project->where('slug', $slug)->select('id', 'file', 'download')->first();
+        $project->download = $project->download + 1;
+
+        // Simpan perubahan ke database
+        $project->update();
+        return $project;
+    }
+
     public function cIndex($companyId)
     {
         return  $this->project->where('company_id', $companyId)

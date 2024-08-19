@@ -41,4 +41,10 @@ class ProjectController extends Controller
         $data = $this->project->moreList($id);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function download($slug)
+    {
+        $data = $this->project->download($slug);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }

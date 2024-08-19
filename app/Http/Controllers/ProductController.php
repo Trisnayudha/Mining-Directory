@@ -41,4 +41,10 @@ class ProductController extends Controller
         $data = $this->product->moreList($id);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function download($slug)
+    {
+        $data = $this->product->download($slug);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }

@@ -35,4 +35,10 @@ class MediaResourceController extends Controller
         }
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function download($slug)
+    {
+        $data = $this->media->download($slug);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }

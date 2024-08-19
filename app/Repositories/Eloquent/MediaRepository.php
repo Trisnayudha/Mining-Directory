@@ -116,6 +116,17 @@ class MediaRepository implements MediaRepositoryInterface
     {
         $media = $this->media->newQuery();
     }
+
+    public function download($slug)
+    {
+        $media = $this->media->where('slug', $slug)->select('id', 'file', 'download')->first();
+        $media->download = $media->download + 1;
+
+        // Simpan perubahan ke database
+        $media->update();
+        return $media;
+    }
+
     public function cIndex($companyId)
     {
         return  $this->media->where('company_id', $companyId)

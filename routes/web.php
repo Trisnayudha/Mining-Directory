@@ -64,13 +64,16 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
     //Product
     $router->get('products/{slug}', ['uses' => 'ProductController@detail']);
     $router->get('products/more-list/{id}', ['uses' => 'ProductController@more']);
+    $router->get('products/download/{slug}', ['uses' => 'ProductController@download']);
 
     //Media Resource
     $router->get('media-resource/{slug}', ['uses' => 'MediaResourceController@detail']);
+    $router->get('media-resource/download/{slug}', ['uses' => 'MediaResourceController@download']);
 
     //Project
     $router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
     $router->get('project/more-list/{id}', ['uses' => 'ProjectController@more']);
+    $router->get('project/download/{slug}', ['uses' => 'ProjectController@download']);
 
     //Videos
     $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);

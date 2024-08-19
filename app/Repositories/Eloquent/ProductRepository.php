@@ -119,7 +119,6 @@ class ProductRepository implements ProductRepositoryInterface
                 'products.views',
                 'products.download',
                 'products.description',
-                'products.file'
             )
             ->with(['products_asset' => function ($query) {
                 $query->select('product_id', 'asset'); // Asumsi ada 'product_id' di 'products_asset'
@@ -185,6 +184,16 @@ class ProductRepository implements ProductRepositoryInterface
         });
 
         return $products;
+    }
+
+    public function download($slug)
+    {
+        $product = $this->product->where('slug', $slug)->select('id', 'file', 'download')->first();
+        $product->download = $product->download + 1;
+
+        // Simpan perubahan ke database
+        $product->update();
+        return $product;
     }
 
 
