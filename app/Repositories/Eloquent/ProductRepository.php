@@ -9,6 +9,7 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class ProductRepository implements ProductRepositoryInterface
 {
@@ -208,8 +209,7 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function cStore($companyId, $request)
     {
-        // Validasi request
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'views' => 'nullable|integer',
@@ -218,6 +218,10 @@ class ProductRepository implements ProductRepositoryInterface
             'file' => 'nullable|mimes:pdf|max:20480', // Maksimal 20MB untuk file PDF
             'assets.*' => 'nullable|mimes:jpeg,png,jpg,mp4|max:20480', // Maksimal 20MB untuk setiap asset (gambar/video)
         ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
         // Mulai transaksi
         DB::beginTransaction();

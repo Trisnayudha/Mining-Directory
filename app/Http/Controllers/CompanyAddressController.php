@@ -34,7 +34,7 @@ class CompanyAddressController extends Controller
     public function store(Request $request)
     {
         $userId = $this->getAuthenticatedUserId();
-        $payload = $request->only(['type', 'town', 'country', 'phone', 'address', 'city', 'province', 'postal_code']);
+        $payload = $request->only(['type', 'town', 'country', 'phone', 'address', 'city', 'province', 'postal_code', 'email', 'prefix_phone_company', 'phone_company']);
         $companyAddress = $this->company->store($userId, $payload);
 
         return $this->sendResponse('Successfully created address', $companyAddress, 201);
