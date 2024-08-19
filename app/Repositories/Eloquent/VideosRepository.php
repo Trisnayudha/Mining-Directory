@@ -117,7 +117,7 @@ class VideosRepository implements VideosRepositoryInterface
 
     public function moreList($id)
     {
-        return  $this->videos->where('id', '!=', $id)->select('id', 'asset', 'views', 'created_at', 'slug')->take(4)->get();
+        return  $this->videos->where('id', '!=', $id)->select('id', 'asset', 'title', 'views', 'created_at', 'slug')->take(4)->get();
     }
 
     public function cIndex($companyId)
