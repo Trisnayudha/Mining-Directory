@@ -119,7 +119,7 @@ class ProjectRepository implements ProjectRepositoryInterface
     {
         return  $this->project
             ->join('company', 'company.id', '=', 'projects.company_id')
-            ->where('id', '!=', $id)->select(
+            ->where('projects.id', '!=', $id)->select(
                 'projects.id',
                 'company.company_name',
                 'projects.location',
