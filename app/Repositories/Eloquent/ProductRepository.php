@@ -112,6 +112,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'products.id',
                 'company.company_name',
                 'company.slug as company_slug',
+                'company.id as company_id',
                 'company.package',
                 'company.image as company_image',
                 'products.title',
@@ -152,13 +153,54 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
 
-    public function moreList($id)
+    public function moreList($request)
     {
-        $products = $this->product->where('products.id', '!=', $id)
+        $company_id = $request->company_id;
+        $expect_id = $request->expect_id;
+        $products = $this->product->where('products.company_id', '=', $company_id)
+            ->where('products.id', '!=', $expect_id)
             ->join('company', 'company.id', '=', 'products.company_id')
             ->select(
                 'products.id',
                 'products.title',
+                'company.company_name',
+                'products.slug',
+                DB::raw('LEFT(products.description, 100) as description_short')
+            )
+            ->addSelect([
+                'products_asset' => DB::table('products_asset')
+                    ->select('asset')
+                    ->whereColumn('products_asset.product_id', 'products.id')
+                    ->where('asset_type', 'image')
+                    ->limit(1)
+            ])
+            ->with(['productCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name')
+                    ->limit(1); // Mengambil hanya satu kategori
+            }])
+            ->orderby('id', 'desc')
+            ->get();
+
+        // Memastikan deskripsi diakhiri dengan "..." jika lebih dari 100 karakter
+        $products->each(function ($product) {
+            if (strlen($product->description_short) >= 100) {
+                $product->description_short .= '...';
+            }
+        });
+
+        return $products;
+    }
+
+    public function relatedList($request)
+    {
+        $expect_id = $request->expect_id;
+        $products = $this->product
+            ->where('products.id', '!=', $expect_id)
+            ->join('company', 'company.id', '=', 'products.company_id')
+            ->select(
+                'products.id',
+                'products.title',
+                'company.company_name',
                 'products.slug',
                 DB::raw('LEFT(products.description, 100) as description_short')
             )

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\NewsRepository;
 use App\Traits\AssetLogTrait;
+use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class NewsController extends Controller
@@ -36,9 +37,9 @@ class NewsController extends Controller
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
-    public function more($id)
+    public function more(Request $request)
     {
-        $data = $this->news->moreList($id);
+        $data = $this->news->moreList($request);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 }

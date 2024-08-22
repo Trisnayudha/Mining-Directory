@@ -63,7 +63,8 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
 
     //Product
     $router->get('products/{slug}', ['uses' => 'ProductController@detail']);
-    $router->get('products/more-list/{id}', ['uses' => 'ProductController@more']);
+    $router->get('products/more-list/show', ['uses' => 'ProductController@more']);
+    $router->get('products/related-list/show', ['uses' => 'ProductController@related']);
     $router->get('products/download/{slug}', ['uses' => 'ProductController@download']);
 
     //Media Resource
@@ -72,16 +73,17 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
 
     //Project
     $router->get('project/{slug}', ['uses' => 'ProjectController@detail']);
-    $router->get('project/more-list/{id}', ['uses' => 'ProjectController@more']);
+    $router->get('project/more-list/show', ['uses' => 'ProjectController@more']);
+    $router->get('project/related-list/show', ['uses' => 'ProjectController@related']);
     $router->get('project/download/{slug}', ['uses' => 'ProjectController@download']);
 
     //Videos
     $router->get('videos/{slug}', ['uses' => 'VideoController@detail']);
-    $router->get('videos/more-list/{id}', ['uses' => 'VideoController@more']);
+    $router->get('videos/more-list/show', ['uses' => 'VideoController@more']);
 
     //News
     $router->get('news/{slug}', ['uses' => 'NewsController@detail']);
-    $router->get('news/more-list/{id}', ['uses' => 'NewsController@more']);
+    $router->get('news/more-list/show', ['uses' => 'NewsController@more']);
 
     //Company
     $router->get('company/{slug}', ['uses' => 'CompanyController@detail']);

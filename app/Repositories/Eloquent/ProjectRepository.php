@@ -78,6 +78,7 @@ class ProjectRepository implements ProjectRepositoryInterface
             ->where('projects.slug', '=', $slug)
             ->select(
                 'projects.id',
+                'company.id as company_id',
                 'company.company_name',
                 'company.package',
                 'company.slug as company_slug',
@@ -115,11 +116,30 @@ class ProjectRepository implements ProjectRepositoryInterface
     }
 
 
-    public function moreList($id)
+    public function moreList($request)
     {
-        return  $this->project
+        $company_id = $request->company_id;
+        $expect_id = $request->expect_id;
+
+        return $this->project
             ->join('company', 'company.id', '=', 'projects.company_id')
-            ->where('projects.id', '!=', $id)->select(
+            ->leftJoin('project_category_list', 'project_category_list.project_id', '=', 'projects.id')
+            ->leftJoin('md_category_company', 'project_category_list.category_id', '=', 'md_category_company.id')
+            ->leftJoin('project_sub_category_list', 'project_sub_category_list.project_id', '=', 'projects.id')
+            ->leftJoin('md_sub_category_company', 'project_sub_category_list.sub_category_id', '=', 'md_sub_category_company.id')
+            ->where('projects.company_id', '=', $company_id)
+            ->where('projects.id', '!=', $expect_id)
+            ->select(
+                'projects.id',
+                'company.company_name',
+                DB::raw('MIN(md_category_company.name) as category'),
+                'projects.location',
+                'projects.title',
+                'projects.slug',
+                'projects.description',
+                'projects.image'
+            )
+            ->groupBy(
                 'projects.id',
                 'company.company_name',
                 'projects.location',
@@ -127,8 +147,48 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'projects.slug',
                 'projects.description',
                 'projects.image'
-            )->take(4)->get();
+            )
+            ->orderBy('projects.id', 'desc')
+            ->take(4)
+            ->get();
     }
+
+
+    public function relatedList($request)
+    {
+        $expect_ids = $request->expect_id; // id in array
+
+        return $this->project
+            ->join('company', 'company.id', '=', 'projects.company_id')
+            ->leftJoin('project_category_list', 'project_category_list.project_id', '=', 'projects.id')
+            ->leftJoin('md_category_company', 'project_category_list.category_id', '=', 'md_category_company.id')
+            ->leftJoin('project_sub_category_list', 'project_sub_category_list.project_id', '=', 'projects.id')
+            ->leftJoin('md_sub_category_company', 'project_sub_category_list.sub_category_id', '=', 'md_sub_category_company.id')
+            ->whereNotIn('projects.id', $expect_ids)
+            ->select(
+                'projects.id',
+                'company.company_name',
+                DB::raw('MIN(md_category_company.name) as category'), // Mengambil satu nama kategori
+                'projects.location',
+                'projects.title',
+                'projects.slug',
+                'projects.description',
+                'projects.image'
+            )
+            ->groupBy(
+                'projects.id',
+                'company.company_name',
+                'projects.location',
+                'projects.title',
+                'projects.slug',
+                'projects.description',
+                'projects.image'
+            )
+            ->orderBy('projects.id', 'desc')
+            ->take(4)
+            ->get();
+    }
+
 
     public function download($slug)
     {

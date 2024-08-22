@@ -86,6 +86,7 @@ class NewsRepository implements NewsRepositoryInterface
                 'company.package',
                 'company.slug as company_slug',
                 'company.image as company_image',
+                'company.id as company_id',
                 'news.views',
                 'news.date_news',
                 'news.title',
@@ -119,9 +120,11 @@ class NewsRepository implements NewsRepositoryInterface
     }
 
 
-    public function moreList($id)
+    public function moreList($request)
     {
-        return $this->news->where('news.id', '!=', $id)->select('id', 'title', 'slug', 'image')->orderby('id', 'desc')->take(5)->get();
+        $company_id = $request->company_id;
+        return $this->news->where('news.id', '=', $company_id)
+            ->select('id', 'title', 'slug', 'image')->orderby('id', 'desc')->take(5)->get();
     }
 
     public function cIndex($companyId)

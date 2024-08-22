@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\ProjectRepository;
 use App\Traits\AssetLogTrait;
+use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProjectController extends Controller
@@ -36,9 +37,15 @@ class ProjectController extends Controller
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
-    public function more($id)
+    public function more(Request $request)
     {
-        $data = $this->project->moreList($id);
+        $data = $this->project->moreList($request);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
+
+    public function related(Request $request)
+    {
+        $data = $this->project->relatedList($request);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 

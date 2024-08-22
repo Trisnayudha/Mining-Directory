@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Traits\AssetLogTrait;
+use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProductController extends Controller
@@ -36,9 +37,15 @@ class ProductController extends Controller
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
-    public function more($id)
+    public function more(Request $request)
     {
-        $data = $this->product->moreList($id);
+        $data = $this->product->moreList($request);
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
+
+    public function related(Request $request)
+    {
+        $data = $this->product->relatedList($request);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
