@@ -306,6 +306,10 @@ class ProductRepository implements ProductRepositoryInterface
                 $this->saveProductAssets($product->id, $request->file('assets'));
             }
 
+            if ($request->video_asset) {
+                $this->saveVideoAssets($product->id, $request->video_asset);
+            }
+
             // Simpan data categories
             if ($request->has('categories')) {
                 foreach ($request->categories as $categoryId) {
@@ -510,6 +514,18 @@ class ProductRepository implements ProductRepositoryInterface
             $this->productAsset->create([
                 'product_id' => $productId,
                 'asset' => url($dbPath),
+                'asset_type' => $assetType
+            ]);
+        }
+    }
+    private function saveVideoAssets($productId, $files)
+    {
+        foreach ($files as $file) {
+            $assetType = 'video';
+            // Simpan path file ke database
+            $this->productAsset->create([
+                'product_id' => $productId,
+                'asset' => $file,
                 'asset_type' => $assetType
             ]);
         }
