@@ -125,7 +125,7 @@ class VideosRepository implements VideosRepositoryInterface
         return  $this->videos->where('company_id', $companyId)
             ->with(['videoCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
-            }])->select('id', 'title', 'slug', 'asset', 'status')->orderby('id', 'desc')->get();
+            }])->select('id', 'title', 'slug', 'asset', 'status', 'views')->orderby('id', 'desc')->get();
     }
 
     public function cStore($companyId, $request)
