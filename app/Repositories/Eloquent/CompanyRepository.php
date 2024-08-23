@@ -335,6 +335,15 @@ class CompanyRepository implements CompanyRepositoryInterface
             $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
         }])
             ->first();
+        if ($query) {
+            $url = 'https://mining-directory.vercel.app/companies/detail/' . $slug;
+            $query->share_links = [
+                'web' => $url,
+                'facebook' => 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($url),
+                'linkedin' => 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($url),
+                'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
+            ];
+        }
         return $query;
     }
 

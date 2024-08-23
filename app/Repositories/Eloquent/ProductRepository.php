@@ -93,9 +93,10 @@ class ProductRepository implements ProductRepositoryInterface
             'products_asset.asset as image', // Get the asset from products_asset with asset_type png
             'company.company_name',
             'products.views',
+            'products.description',
             DB::raw('MIN(md_category_company.name) as category') // Get one category name
         ])
-            ->groupBy('products.id', 'products.title', 'products.slug', 'products_asset.asset', 'company.company_name', 'products.views', 'company.package')
+            ->groupBy('products.id', 'products.title', 'products.slug', 'products_asset.asset', 'company.company_name', 'products.views', 'company.package', 'products.description')
             ->orderByRaw("FIELD(company.package, 'platinum', 'gold', 'silver')")
             ->paginate($paginate);
 
