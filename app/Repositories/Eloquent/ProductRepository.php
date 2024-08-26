@@ -428,7 +428,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'products.file'
             )
             ->with(['products_asset' => function ($query) {
-                $query->select('id', 'product_id', 'asset')->get(); // Asumsi ada 'product_id' di 'products_asset'
+                $query->select('id', 'product_id', 'asset', 'type')->get(); // Asumsi ada 'product_id' di 'products_asset'
             }, 'productCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name')->get(); // Sesuaikan field sesuai dengan kebutuhan
             }])
