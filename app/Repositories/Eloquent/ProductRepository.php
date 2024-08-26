@@ -341,7 +341,6 @@ class ProductRepository implements ProductRepositoryInterface
         try {
             // Temukan produk
             $product = $this->product->findOrFail($productId);
-
             // Update data produk
             $productData = $request->only([
                 'title',
@@ -361,6 +360,7 @@ class ProductRepository implements ProductRepositoryInterface
 
             // Update produk
             $product->update($productData);
+            // dd($product);
 
             // Update data assets
             if ($request->hasFile('assets')) {
@@ -371,34 +371,45 @@ class ProductRepository implements ProductRepositoryInterface
                 foreach ($existingAssets as $existingAsset) {
                     if (!in_array($existingAsset->asset, array_map(function ($file) {
                         return url('storage/assets/' . time() . '.' . $file->getClientOriginalExtension());
-                    }, $newAssets))) {
-                        $existingAsset->delete();
-                    }
+                    }, $newAssets)));
                 }
 
                 // Tambahkan assets baru yang tidak ada dalam data lama
                 $this->saveProductAssets($product->id, $newAssets);
             }
 
+            if ($request->video_asset) {
+                $this->saveVideoAssets($product->id, $request->video_asset);
+            }
+
+            if ($request->has('remove_asset')) {
+                $removeAsset = $request->input('remove_asset');
+                foreach ($removeAsset as $key) {
+                    $remove = $this->productAsset->where('id', $key)->first();
+                    if ($remove) {
+                        $remove->delete();
+                    }
+                }
+            }
+
             // Update data categories
             if ($request->has('categories')) {
                 $newCategories = $request->input('categories');
-
-                // Hapus categories yang tidak ada dalam data baru
-                $existingCategories = $this->productCategory->where('product_id', $product->id)->get();
-                foreach ($existingCategories as $existingCategory) {
-                    if (!in_array($existingCategory->category_id, $newCategories)) {
-                        $existingCategory->delete();
-                    }
-                }
-
                 // Tambahkan categories baru yang tidak ada dalam data lama
                 foreach ($newCategories as $categoryId) {
-                    if (!$existingCategories->contains('category_id', $categoryId)) {
-                        $this->productCategory->create([
-                            'product_id' => $product->id,
-                            'category_id' => $categoryId
-                        ]);
+                    $this->productCategory->create([
+                        'product_id' => $product->id,
+                        'category_id' => $categoryId
+                    ]);
+                }
+            }
+
+            if ($request->has('remove_categorie')) {
+                $remove_categories = $request->input('remove_categorie');
+                foreach ($remove_categories as $key) {
+                    $remove_categories = $this->productCategory->where('id', $key)->first();
+                    if ($remove_categories) {
+                        $remove_categories->delete();
                     }
                 }
             }
@@ -434,19 +445,32 @@ class ProductRepository implements ProductRepositoryInterface
             }])
             ->first();
 
-        // Pisahkan assets berdasarkan tipe di dalam repository
-        $imageAssets = $product->products_asset->where('asset_type', 'image')->values();
-        $videoAssets = $product->products_asset->where('asset_type', 'video')->values();
+        if ($product) {
+            // Pastikan products_asset tidak null
+            if ($product->products_asset) {
+                // Pisahkan assets berdasarkan tipe di dalam repository
+                $imageAssets = $product->products_asset->where('asset_type', 'image')->values();
+                $videoAssets = $product->products_asset->where('asset_type', 'video')->values();
 
-        // Tambahkan assets yang sudah dipisahkan ke dalam array
-        $product->image_assets = $imageAssets;
-        $product->video_assets = $videoAssets;
+                // Tambahkan assets yang sudah dipisahkan ke dalam array
+                $product->image_assets = $imageAssets;
+                $product->video_assets = $videoAssets;
 
-        // Hapus collection asli untuk menghindari redundansi
-        unset($product->products_asset);
+                // Hapus collection asli untuk menghindari redundansi
+                unset($product->products_asset);
+            } else {
+                // Jika products_asset null, inisialisasi sebagai koleksi kosong
+                $product->image_assets = collect();
+                $product->video_assets = collect();
+            }
+        } else {
+            // Jika $product null, kembalikan respon atau handle error sesuai kebutuhan
+            return response()->json(['error' => 'Product not found'], 404);
+        }
 
         return $product;
     }
+
 
 
     public function cDestroy($companyId, $slug)
