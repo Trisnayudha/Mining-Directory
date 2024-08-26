@@ -416,11 +416,11 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function cEdit($companyId, $slug)
     {
-        return $this->product->newQuery()
+        $product = $this->product->newQuery()
             ->join('company', 'company.id', '=', 'products.company_id')
             ->where('products.slug', '=', $slug)
             ->select(
-                'products.id', // Pastikan untuk memilih 'id' dari produk untuk relasi
+                'products.id',
                 'products.title',
                 'products.views',
                 'products.download',
@@ -428,12 +428,26 @@ class ProductRepository implements ProductRepositoryInterface
                 'products.file'
             )
             ->with(['products_asset' => function ($query) {
-                $query->select('id', 'product_id', 'asset', 'asset_type')->get(); // Asumsi ada 'product_id' di 'products_asset'
+                $query->select('id', 'product_id', 'asset', 'asset_type');
             }, 'productCategories.mdCategory' => function ($query) {
-                $query->select('id', 'name')->get(); // Sesuaikan field sesuai dengan kebutuhan
+                $query->select('id', 'name');
             }])
             ->first();
+
+        // Pisahkan assets berdasarkan tipe di dalam repository
+        $imageAssets = $product->products_asset->where('asset_type', 'image')->values();
+        $videoAssets = $product->products_asset->where('asset_type', 'video')->values();
+
+        // Tambahkan assets yang sudah dipisahkan ke dalam array
+        $product->image_assets = $imageAssets;
+        $product->video_assets = $videoAssets;
+
+        // Hapus collection asli untuk menghindari redundansi
+        unset($product->products_asset);
+
+        return $product;
     }
+
 
     public function cDestroy($companyId, $slug)
     {
