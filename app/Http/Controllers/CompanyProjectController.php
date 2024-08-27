@@ -26,6 +26,13 @@ class CompanyProjectController extends Controller
         // Autentikasi menggunakan guard 'company'
         return  Auth::guard('company')->user()->id;
     }
+
+    public function getProduct()
+    {
+        $companyId = $this->getAuthenticatedCompanyId();
+        $projects = $this->project->getProduct($companyId);
+        return $this->sendResponse('Successfully show data', $projects, 200);
+    }
     public function index()
     {
         $companyId = $this->getAuthenticatedCompanyId();

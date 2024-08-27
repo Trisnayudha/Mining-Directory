@@ -32,4 +32,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectCategory::class, 'project_id', 'id');
     }
+
+    public function projectProduct()
+    {
+        return $this->hasMany(ProjectProduct::class, 'project_id', 'id');
+    }
 }

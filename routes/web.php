@@ -143,6 +143,7 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
 
             //Company Projects
             $router->get('/company-projects', ['uses' => 'CompanyProjectController@index']);
+            $router->get('/company-projects-products', ['uses' => 'CompanyProjectController@getProduct']);
             $router->post('/company-projects', ['uses' => 'CompanyProjectController@store']);
             $router->get('/company-projects/{slug}/edit', ['uses' => 'CompanyProjectController@edit']);
             $router->post('/company-projects-delete/{slug}', ['uses' => 'CompanyProjectController@destroy']);

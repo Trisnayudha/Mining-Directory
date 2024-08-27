@@ -2,8 +2,10 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectCategory;
+use App\Models\ProjectProduct;
 use App\Repositories\Contracts\ProjectRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -13,11 +15,15 @@ class ProjectRepository implements ProjectRepositoryInterface
 {
     protected $project;
     protected $projectCategory;
+    protected $projectProduct;
+    protected $product;
 
-    public function __construct(Project $project, ProjectCategory $projectCategory)
+    public function __construct(Project $project, ProjectCategory $projectCategory, ProjectProduct $projectProduct, Product $product)
     {
         $this->project = $project;
         $this->projectCategory = $projectCategory;
+        $this->projectProduct = $projectProduct;
+        $this->product = $product;
     }
 
     public function findSearch($request)
@@ -201,6 +207,21 @@ class ProjectRepository implements ProjectRepositoryInterface
         return $project;
     }
 
+    public function getProduct($companyId)
+    {
+        return $this->product->where('company_id', $companyId)
+            ->select('id as product_id', 'title')
+            ->addSelect([
+                'products_asset' => DB::table('products_asset')
+                    ->select('asset')
+                    ->whereColumn('products_asset.product_id', 'products.id')
+                    ->where('asset_type', 'image')
+                    ->limit(1)
+            ])
+            ->orderby('id', 'desc')
+            ->get();
+    }
+
     public function cIndex($companyId)
     {
         return  $this->project->where('company_id', $companyId)
@@ -251,6 +272,16 @@ class ProjectRepository implements ProjectRepositoryInterface
                     $this->projectCategory->create([
                         'project_id' => $project->id,
                         'category_id' => $categoryId
+                    ]);
+                }
+            }
+
+            if ($request->product_id) {
+                $product_id = $request->product_id;
+                foreach ($product_id as $key) {
+                    $this->projectProduct->create([
+                        'project_id' => $project->id,
+                        'product_id' => $key
                     ]);
                 }
             }
@@ -324,6 +355,28 @@ class ProjectRepository implements ProjectRepositoryInterface
                 }
             }
 
+            if ($request->product_id) {
+                $product_id = $request->input('product_id');
+
+                $productLists = $this->projectProduct->where('project_id', $product->id)->get();
+                // dd($productLists);
+                if ($productLists) {
+                    foreach ($productLists as $productList) {
+                        $productList->delete();
+                    }
+                }
+
+                // Tambah
+                foreach ($product_id as $id) {
+                    if (!$productLists->contains('product_id', $id)) {
+                        $this->projectProduct->create([
+                            'project_id' => $product->id,
+                            'product_id' => $id
+                        ]);
+                    }
+                }
+            }
+
             // Commit transaksi
             DB::commit();
 
@@ -346,11 +399,14 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'projects.download',
                 'projects.slug',
                 'projects.description',
+                'projects.location',
                 'projects.file',
                 'projects.description',
                 'projects.image',
             )->with(['projectCategories.mdCategory' => function ($query) {
                 $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])->with(['projectProduct' => function ($query) {
+                $query->select('id', 'project_id', 'product_id');
             }])
             ->first();
 
