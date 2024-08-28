@@ -359,23 +359,23 @@ class ProjectRepository implements ProjectRepositoryInterface
                 $product_id = $request->input('product_id');
 
                 $productLists = $this->projectProduct->where('project_id', $product->id)->get();
-                // dd($productLists);
+
+                // Hapus semua produk yang ada sebelumnya
                 if ($productLists) {
                     foreach ($productLists as $productList) {
                         $productList->delete();
                     }
                 }
 
-                // Tambah
+                // Tambah produk baru
                 foreach ($product_id as $id) {
-                    if (!$productLists->contains('product_id', $id)) {
-                        $this->projectProduct->create([
-                            'project_id' => $product->id,
-                            'product_id' => $id
-                        ]);
-                    }
+                    $this->projectProduct->create([
+                        'project_id' => $product->id,
+                        'product_id' => $id
+                    ]);
                 }
             }
+
 
             // Commit transaksi
             DB::commit();
