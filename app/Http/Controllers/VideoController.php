@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Helpers\ResponseHelper;
 use App\Repositories\Eloquent\VideosRepository;
 use App\Traits\AssetLogTrait;
+use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class VideoController extends Controller
@@ -36,9 +37,9 @@ class VideoController extends Controller
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 
-    public function more($id)
+    public function more(Request $request)
     {
-        $data = $this->videos->moreList($id);
+        $data = $this->videos->moreList($request->company_id);
         return $this->sendResponse('Successfully show data', $data, 200);
     }
 }
