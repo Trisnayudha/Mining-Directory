@@ -395,22 +395,20 @@ class ProductRepository implements ProductRepositoryInterface
             // Update data categories
             if ($request->has('categories')) {
                 $newCategories = $request->input('categories');
+
+                // Hapus categories yang tidak ada dalam data baru
+                $existingCategories = $this->productCategory->where('product_id', $product->id)->get();
+                foreach ($existingCategories as $existingCategory) {
+                    if (!in_array($existingCategory->category_id, $newCategories)) {
+                        $existingCategory->delete();
+                    }
+                }
                 // Tambahkan categories baru yang tidak ada dalam data lama
                 foreach ($newCategories as $categoryId) {
                     $this->productCategory->create([
                         'product_id' => $product->id,
                         'category_id' => $categoryId
                     ]);
-                }
-            }
-
-            if ($request->has('remove_categorie')) {
-                $remove_categories = $request->input('remove_categorie');
-                foreach ($remove_categories as $key) {
-                    $remove_categories = $this->productCategory->where('id', $key)->first();
-                    if ($remove_categories) {
-                        $remove_categories->delete();
-                    }
                 }
             }
 
