@@ -206,7 +206,7 @@ class NewsRepository implements NewsRepositoryInterface
                 $imageFile = $request->file('image');
                 $imageName = time() . '.' . $imageFile->getClientOriginalExtension();
                 $imagePath = $imageFile->storeAs('public/images', $imageName);
-                $newsData['image'] = url('storage/images/' . $imageName);
+                $productData['image'] = url('storage/images/' . $imageName);
             }
             // Update produk
             $product->update($productData);

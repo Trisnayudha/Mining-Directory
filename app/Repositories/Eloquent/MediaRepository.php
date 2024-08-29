@@ -223,7 +223,7 @@ class MediaRepository implements MediaRepositoryInterface
                 $imageFile = $request->file('image');
                 $imageName = time() . '.' . $imageFile->getClientOriginalExtension();
                 $imagePath = $imageFile->storeAs('public/images', $imageName);
-                $mediaData['image'] = url('storage/images/' . $imageName);
+                $productData['image'] = url('storage/images/' . $imageName);
             }
             // Update produk
             $product->update($productData);
