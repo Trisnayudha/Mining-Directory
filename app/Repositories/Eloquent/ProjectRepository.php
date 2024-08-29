@@ -312,7 +312,8 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'description',
                 'views',
                 'download',
-                'status'
+                'status',
+                'location'
             ]);
 
             // Update file PDF, jika ada
