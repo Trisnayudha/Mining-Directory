@@ -304,18 +304,7 @@ class ProductRepository implements ProductRepositoryInterface
 
             // Simpan data assets
             if ($request->hasFile('assets')) {
-                $newAssets = $request->file('assets');
-
-                // Hapus assets yang tidak ada dalam data baru
-                $existingAssets = $this->productAsset->where('product_id', $product->id)->get();
-                foreach ($existingAssets as $existingAsset) {
-                    if (!in_array($existingAsset->asset, array_map(function ($file) {
-                        return url('storage/assets/' . time() . '.' . $file->getClientOriginalExtension());
-                    }, $newAssets)));
-                }
-
-                // Tambahkan assets baru yang tidak ada dalam data lama
-                $this->saveProductAssets($product->id, $newAssets);
+                $this->saveProductAssets($product->id, $request->file('assets'));
             }
 
             if ($request->video_asset) {
@@ -543,7 +532,8 @@ class ProductRepository implements ProductRepositoryInterface
     private function saveProductAssets($productId, $files)
     {
         foreach ($files as $file) {
-            $imageName = time() . '.' . $file->extension();
+            // Menghasilkan nama file unik
+            $imageName = uniqid() . '.' . $file->extension();
             $dbPath = 'storage/assets/' . $imageName;
 
             // Menyimpan file
@@ -566,6 +556,7 @@ class ProductRepository implements ProductRepositoryInterface
             ]);
         }
     }
+
     private function saveVideoAssets($productId, $files)
     {
         foreach ($files as $file) {
