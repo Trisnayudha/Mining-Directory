@@ -304,7 +304,18 @@ class ProductRepository implements ProductRepositoryInterface
 
             // Simpan data assets
             if ($request->hasFile('assets')) {
-                $this->saveProductAssets($product->id, $request->file('assets'));
+                $newAssets = $request->file('assets');
+
+                // Hapus assets yang tidak ada dalam data baru
+                $existingAssets = $this->productAsset->where('product_id', $product->id)->get();
+                foreach ($existingAssets as $existingAsset) {
+                    if (!in_array($existingAsset->asset, array_map(function ($file) {
+                        return url('storage/assets/' . time() . '.' . $file->getClientOriginalExtension());
+                    }, $newAssets)));
+                }
+
+                // Tambahkan assets baru yang tidak ada dalam data lama
+                $this->saveProductAssets($product->id, $newAssets);
             }
 
             if ($request->video_asset) {
