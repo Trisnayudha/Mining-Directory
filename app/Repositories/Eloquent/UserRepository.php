@@ -288,17 +288,23 @@ class UserRepository implements UserRepositoryInterface
                     ->where('products_asset.asset_type', '=', 'png');
             })
             ->join('company', 'company.id', '=', 'products.company_id')
+            ->join('product_category_list', 'product_category_list.product_id', '=', 'products.id')
+            ->join('md_category_company', 'md_category_company.id', '=', 'product_category_list.md_category_company_id')
             ->select(
                 'products.id as product_id',
                 'products_favorite.id as favorite_id',
                 'products.title',
                 'products.slug',
                 'products_asset.asset as image', // Get the asset from products_asset with asset_type png
-                'company.company_name'
-            )->where('users_id', $id)->get();
+                'company.company_name',
+                'md_category_company.name as category_name' // Contoh field dari md_category_company
+            )
+            ->where('users_id', $id)
+            ->get();
 
         return $query;
     }
+
 
     private function favoriteProject($id)
     {
