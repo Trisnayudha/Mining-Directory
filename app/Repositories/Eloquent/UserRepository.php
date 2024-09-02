@@ -283,14 +283,14 @@ class UserRepository implements UserRepositoryInterface
     private function favoriteProduct($id)
     {
         $query = ProductFavorite::join('products', 'products.id', '=', 'products_favorite.product_id')
-            ->with(['productCategories.mdCategory' => function ($query) {
-                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
-            }])
             ->leftJoin('products_asset', function ($join) {
                 $join->on('products_asset.product_id', '=', 'products.id')
                     ->where('products_asset.asset_type', '=', 'png');
             })
             ->join('company', 'company.id', '=', 'products.company_id')
+            ->with(['product.productCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
             ->select(
                 'products.id as product_id',
                 'products_favorite.id as favorite_id',
@@ -302,6 +302,7 @@ class UserRepository implements UserRepositoryInterface
 
         return $query;
     }
+
 
     private function favoriteProject($id)
     {
@@ -330,7 +331,6 @@ class UserRepository implements UserRepositoryInterface
                 'videos.title',
                 'videos.slug',
                 'videos.asset',
-                'videos.location',
                 'company.company_name'
             )->where('users_id', $id)->get();
 
