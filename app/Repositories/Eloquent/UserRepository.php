@@ -289,7 +289,7 @@ class UserRepository implements UserRepositoryInterface
             })
             ->join('company', 'company.id', '=', 'products.company_id')
             ->join('products_category_list', 'products_category_list.product_id', '=', 'products.id')
-            ->join('md_category_company', 'md_category_company.id', '=', 'products_category_list.md_category_company_id')
+            ->join('md_category_company', 'md_category_company.id', '=', 'products_category_list.category_id')
             ->select(
                 'products.id as product_id',
                 'products_favorite.id as favorite_id',
