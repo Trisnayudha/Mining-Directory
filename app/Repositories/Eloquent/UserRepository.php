@@ -288,9 +288,6 @@ class UserRepository implements UserRepositoryInterface
                     ->where('products_asset.asset_type', '=', 'png');
             })
             ->join('company', 'company.id', '=', 'products.company_id')
-            ->with(['product.productCategories.mdCategory' => function ($query) {
-                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
-            }])
             ->select(
                 'products.id as product_id',
                 'products_favorite.id as favorite_id',
@@ -303,7 +300,6 @@ class UserRepository implements UserRepositoryInterface
         return $query;
     }
 
-
     private function favoriteProject($id)
     {
         $query = ProjectFavorite::join('projects', 'projects.id', '=', 'projects_favorite.project_id')
@@ -314,8 +310,7 @@ class UserRepository implements UserRepositoryInterface
                 'projects.title',
                 'projects.slug',
                 'projects.image',
-                'company.company_name',
-                'projects.location'
+                'company.company_name'
             )->where('users_id', $id)->get();
 
         return $query;
@@ -357,9 +352,6 @@ class UserRepository implements UserRepositoryInterface
     private function favoriteMedia($id)
     {
         $query = MediaResourceFavorite::join('media_resource', 'media_resource.id', '=', 'media_resource_favorite.media_resource_id')
-            ->with(['mediaCategories.mdCategory' => function ($query) {
-                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
-            }])
             ->join('company', 'company.id', '=', 'media_resource.company_id')
             ->select(
                 'media_resource.id as media_resource_id',
