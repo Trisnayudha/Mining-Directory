@@ -283,6 +283,9 @@ class UserRepository implements UserRepositoryInterface
     private function favoriteProduct($id)
     {
         $query = ProductFavorite::join('products', 'products.id', '=', 'products_favorite.product_id')
+            ->with(['productCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
             ->leftJoin('products_asset', function ($join) {
                 $join->on('products_asset.product_id', '=', 'products.id')
                     ->where('products_asset.asset_type', '=', 'png');
@@ -310,7 +313,8 @@ class UserRepository implements UserRepositoryInterface
                 'projects.title',
                 'projects.slug',
                 'projects.image',
-                'company.company_name'
+                'company.company_name',
+                'projects.location'
             )->where('users_id', $id)->get();
 
         return $query;
@@ -326,6 +330,7 @@ class UserRepository implements UserRepositoryInterface
                 'videos.title',
                 'videos.slug',
                 'videos.asset',
+                'videos.location',
                 'company.company_name'
             )->where('users_id', $id)->get();
 
@@ -342,7 +347,8 @@ class UserRepository implements UserRepositoryInterface
                 'news.title',
                 'news.image',
                 'news.date_news',
-                'company.company_name'
+                'company.company_name',
+                'news.slug'
             )->where('users_id', $id)->get();
 
         return $query;
@@ -351,6 +357,9 @@ class UserRepository implements UserRepositoryInterface
     private function favoriteMedia($id)
     {
         $query = MediaResourceFavorite::join('media_resource', 'media_resource.id', '=', 'media_resource_favorite.media_resource_id')
+            ->with(['mediaCategories.mdCategory' => function ($query) {
+                $query->select('id', 'name'); // Sesuaikan field sesuai dengan kebutuhan
+            }])
             ->join('company', 'company.id', '=', 'media_resource.company_id')
             ->select(
                 'media_resource.id as media_resource_id',
