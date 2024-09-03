@@ -16,6 +16,7 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+$router->get('pricing', 'PricingController@index');
 
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('/login/password', ['middleware' => 'throttle', 'uses' => 'Auth\AuthController@loginPassword']);
