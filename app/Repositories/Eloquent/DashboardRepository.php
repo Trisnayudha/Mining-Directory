@@ -21,6 +21,8 @@ use App\Repositories\Contracts\DashboardRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class DashboardRepository implements DashboardRepositoryInterface
 {
@@ -336,6 +338,36 @@ class DashboardRepository implements DashboardRepositoryInterface
             'labels' => ['Video', 'Product', 'News', 'Project', 'Media Resource'],
             'colors' => ['#92D3D3', '#60BEBE', '#2C6D6D', '#1B4242', '#F5A623']
         ];
+    }
+
+    public function changePassword($request, $id)
+    {
+        $user = $this->company->find($id);
+
+        if (!$user) {
+            return ['message' => 'User not found', 'status' => 404];
+        }
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+            'new_password' => 'required|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return ['message' => 'Validation failed', 'errors' => $validator->errors(), 'status' => 400];
+        }
+
+        // Check if the old password matches
+        if (!Hash::check($request->input('old_password'), $user->password)) {
+            return ['message' => 'Old password is incorrect', 'status' => 400];
+        }
+
+        // Update the password
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        return $user;
     }
 
     private function calculatePercentage($current, $previous)

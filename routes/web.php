@@ -120,6 +120,8 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
             $router->get('/dashboard-visit-analyst', ['uses' => 'CompanyDashboardController@visitAnalyst']);
             $router->get('/dashboard-asset-analyst', ['uses' => 'CompanyDashboardController@assetAnalyst']);
 
+            $router->post('change-password', ['uses' => 'CompanyDashboardController@changePassword']);
+
             $router->get('/company-information', ['uses' => 'CompanyInformationController@index']);
             $router->post('/company-information', ['uses' => 'CompanyInformationController@store']);
 

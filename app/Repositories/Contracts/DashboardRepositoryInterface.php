@@ -14,4 +14,5 @@ interface DashboardRepositoryInterface
     public function visitAnalyst($id, $request);
     public function assetAnalyst($id, $request);
     public function checkCompany($id);
+    public function changePassword($request, $id);
 }

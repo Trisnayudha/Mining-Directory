@@ -84,4 +84,16 @@ class CompanyDashboardController extends Controller
 
         return $this->sendResponse('Successfully show data', $data, 200);
     }
+
+    public function changePassword(Request $request)
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $data = $this->dashboard->changePassword($request, $userId);
+
+        if (!$data) {
+            return $this->sendResponse('User not found', [], 404);
+        }
+
+        return $this->sendResponse('Successfully show data', $data, 200);
+    }
 }
