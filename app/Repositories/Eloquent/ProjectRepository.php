@@ -72,9 +72,10 @@ class ProjectRepository implements ProjectRepositoryInterface
             'projects.views',
             'projects.download',
             'projects.description',
+            'projects.location',
             DB::raw('MIN(md_category_company.name) as category') // Get one category name
         ])
-            ->groupBy('projects.id', 'projects.title', 'projects.slug', 'projects.image', 'company.company_name', 'projects.views', 'company.package', 'projects.download', 'projects.description')
+            ->groupBy('projects.id', 'projects.title', 'projects.slug', 'projects.location', 'projects.image', 'company.company_name', 'projects.views', 'company.package', 'projects.download', 'projects.description')
             ->orderByRaw("FIELD(company.package, 'platinum', 'gold', 'silver')")
             ->paginate($paginate);
 
