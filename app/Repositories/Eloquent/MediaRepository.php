@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\MediaCategory;
 use App\Models\MediaResource;
+use App\Models\MediaResourceFavorite;
 use App\Repositories\Contracts\MediaRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -13,10 +14,12 @@ class MediaRepository implements MediaRepositoryInterface
 {
     protected $media;
     protected $mediaCategory;
-    public function __construct(MediaResource $media, MediaCategory $mediaCategory)
+    protected $mediaResourceFavorite;
+    public function __construct(MediaResource $media, MediaCategory $mediaCategory, MediaResourceFavorite $mediaResourceFavorite)
     {
         $this->media = $media;
         $this->mediaCategory = $mediaCategory;
+        $this->mediaResourceFavorite = $mediaResourceFavorite;
     }
 
     public function findSearch($request)
@@ -70,7 +73,7 @@ class MediaRepository implements MediaRepositoryInterface
         return $results;
     }
 
-    public function detail($slug)
+    public function detail($slug, $id)
     {
         $media = $this->media->newQuery()
             ->join('company', 'company.id', '=', 'media_resource.company_id')
@@ -107,6 +110,11 @@ class MediaRepository implements MediaRepositoryInterface
                 'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
             ];
         }
+        $findFavorite = null;
+        if ($id) {
+            $findFavorite = $this->mediaResourceFavorite->where('users_id', $id)->where('media_resource_id', $media->id)->first();
+        }
+        $media->isFavorite = $findFavorite ? 1 : 0;
 
         return $media;
     }

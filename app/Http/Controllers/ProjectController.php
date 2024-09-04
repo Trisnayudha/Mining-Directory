@@ -30,7 +30,7 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             // Token tidak ada atau tidak valid, biarkan $userId tetap null
         }
-        $data = $this->project->detail($slug);
+        $data = $this->project->detail($slug, $userId);
         if ($data && $userId) {
             $this->logProjectDetail($data->id, $userId);
         }

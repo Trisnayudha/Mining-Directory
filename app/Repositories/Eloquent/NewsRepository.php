@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\News;
 use App\Models\NewsCategory;
+use App\Models\NewsFavorite;
 use App\Repositories\Contracts\NewsRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -13,11 +14,12 @@ class NewsRepository implements NewsRepositoryInterface
 {
     protected $news;
     protected $newsCategory;
-
-    public function __construct(News $news, NewsCategory $newsCategory)
+    protected $newsFavorite;
+    public function __construct(News $news, NewsCategory $newsCategory, NewsFavorite $newsFavorite)
     {
         $this->news = $news;
         $this->newsCategory = $newsCategory;
+        $this->newsFavorite = $newsFavorite;
     }
 
     public function findHome()
@@ -75,7 +77,7 @@ class NewsRepository implements NewsRepositoryInterface
         return $results;
     }
 
-    public function detail($slug)
+    public function detail($slug, $id)
     {
         $news = $this->news->newQuery()
             ->join('company', 'company.id', '=', 'news.company_id')
@@ -115,6 +117,11 @@ class NewsRepository implements NewsRepositoryInterface
                 'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
             ];
         }
+        $findFavorite = null;
+        if ($id) {
+            $findFavorite = $this->newsFavorite->where('users_id', $id)->where('news_id', $news->id)->first();
+        }
+        $news->isFavorite = $findFavorite ? 1 : 0;
 
         return $news;
     }

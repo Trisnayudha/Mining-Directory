@@ -8,7 +8,7 @@ interface NewsRepositoryInterface
 {
     public function findHome();
     public function findSearch($request);
-    public function detail($slug);
+    public function detail($slug, $id);
     public function moreList($request);
     public function cIndex($companyId);
     public function cStore($companyId, $request);

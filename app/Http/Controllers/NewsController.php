@@ -30,7 +30,7 @@ class NewsController extends Controller
         } catch (\Exception $e) {
             // Token tidak ada atau tidak valid, biarkan $userId tetap null
         }
-        $data = $this->news->detail($slug);
+        $data = $this->news->detail($slug, $userId);
         if ($data && $userId) {
             $this->logNewsDetail($data->id, $userId);
         }

@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Videos;
 use App\Models\VideosCategory;
+use App\Models\VideosFavorite;
 use App\Repositories\Contracts\VideosRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -13,11 +14,14 @@ class VideosRepository implements VideosRepositoryInterface
 {
     protected $videos;
     protected $videosCategory;
-    public function __construct(Videos $videos, VideosCategory $videosCategory)
+    protected $videosFavorite;
+    public function __construct(Videos $videos, VideosCategory $videosCategory, VideosFavorite $videosFavorite)
     {
         $this->videos = $videos;
         $this->videosCategory = $videosCategory;
+        $this->videosFavorite = $videosFavorite;
     }
+
 
     public function findHome()
     {
@@ -73,7 +77,7 @@ class VideosRepository implements VideosRepositoryInterface
         return $results;
     }
 
-    public function detail($slug)
+    public function detail($slug, $id)
     {
         $video = $this->videos->newQuery()
             ->join('company', 'company.id', 'videos.company_id')
@@ -111,7 +115,11 @@ class VideosRepository implements VideosRepositoryInterface
                 'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
             ];
         }
-
+        $findFavorite = null;
+        if ($id) {
+            $findFavorite = $this->videosFavorite->where('users_id', $id)->where('video_id', $video->id)->first();
+        }
+        $video->isFavorite = $findFavorite ? 1 : 0;
         return $video;
     }
 

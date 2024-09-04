@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\Product;
 use App\Models\ProductAsset;
 use App\Models\ProductCategory;
+use App\Models\ProductFavorite;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -16,12 +17,14 @@ class ProductRepository implements ProductRepositoryInterface
     protected $product;
     protected $productAsset;
     protected $productCategory;
+    protected $productFavorite;
 
-    public function __construct(Product $product, ProductAsset $productAsset, ProductCategory $productCategory)
+    public function __construct(Product $product, ProductAsset $productAsset, ProductCategory $productCategory, ProductFavorite $productFavorite)
     {
         $this->product = $product;
         $this->productAsset = $productAsset;
         $this->productCategory = $productCategory;
+        $this->productFavorite = $productFavorite;
     }
 
     public function findHome()
@@ -104,7 +107,7 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
 
-    public function detail($slug)
+    public function detail($slug, $id)
     {
         $product = $this->product->newQuery()
             ->join('company', 'company.id', '=', 'products.company_id')
@@ -149,6 +152,11 @@ class ProductRepository implements ProductRepositoryInterface
                 'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
             ];
         }
+        $findFavorite = null;
+        if ($id) {
+            $findFavorite = $this->productFavorite->where('users_id', $id)->where('product_id', $product->id)->first();
+        }
+        $product->isFavorite = $findFavorite ? 1 : 0;
 
         return $product;
     }

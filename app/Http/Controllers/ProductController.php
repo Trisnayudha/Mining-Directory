@@ -30,7 +30,7 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             // Token tidak ada atau tidak valid, biarkan $userId tetap null
         }
-        $data = $this->product->detail($slug);
+        $data = $this->product->detail($slug, $userId);
         if ($data && $userId) {
             $this->logProductDetail($data->id, $userId);
         }

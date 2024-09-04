@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectCategory;
+use App\Models\ProjectFavorite;
 use App\Models\ProjectProduct;
 use App\Repositories\Contracts\ProjectRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -17,13 +18,15 @@ class ProjectRepository implements ProjectRepositoryInterface
     protected $projectCategory;
     protected $projectProduct;
     protected $product;
+    protected $projectFavorite;
 
-    public function __construct(Project $project, ProjectCategory $projectCategory, ProjectProduct $projectProduct, Product $product)
+    public function __construct(Project $project, ProjectCategory $projectCategory, ProjectProduct $projectProduct, Product $product, ProjectFavorite $projectFavorite)
     {
         $this->project = $project;
         $this->projectCategory = $projectCategory;
         $this->projectProduct = $projectProduct;
         $this->product = $product;
+        $this->projectFavorite = $projectFavorite;
     }
 
     public function findSearch($request)
@@ -78,7 +81,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         return $results;
     }
 
-    public function detail($slug)
+    public function detail($slug, $id)
     {
         $project = $this->project->newQuery()
             ->join('company', 'company.id', '=', 'projects.company_id')
@@ -118,7 +121,11 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
             ];
         }
-
+        $findFavorite = null;
+        if ($id) {
+            $findFavorite = $this->projectFavorite->where('users_id', $id)->where('project_id', $project->id)->first();
+        }
+        $project->isFavorite = $findFavorite ? 1 : 0;
         return $project;
     }
 

@@ -29,7 +29,7 @@ class MediaResourceController extends Controller
         } catch (\Exception $e) {
             // Token tidak ada atau tidak valid, biarkan $userId tetap null
         }
-        $data = $this->media->detail($slug);
+        $data = $this->media->detail($slug, $userId);
         if ($data && $userId) {
             $this->logMediaDetail($data->id, $userId);
         }

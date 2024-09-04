@@ -8,7 +8,7 @@ interface ProductRepositoryInterface
 {
     public function findHome();
     public function findSearch($request);
-    public function detail($slug);
+    public function detail($slug, $id);
     public function moreList($request);
     public function relatedList($request);
     public function download($slug);
