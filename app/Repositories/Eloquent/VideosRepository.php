@@ -68,9 +68,10 @@ class VideosRepository implements VideosRepositoryInterface
             'videos.asset', // Get the asset from project_asset with asset_type png
             'company.company_name',
             'videos.views',
+            'videos.created_at',
             DB::raw('MIN(md_category_company.name) as category') // Get one category name
         ])
-            ->groupBy('videos.id', 'videos.title', 'videos.slug', 'videos.asset', 'company.company_name', 'videos.views', 'company.package')
+            ->groupBy('videos.id', 'videos.title', 'videos.slug', 'videos.asset', 'videos.created_at', 'company.company_name', 'videos.views', 'company.package')
             ->orderByRaw("FIELD(company.package, 'platinum', 'gold', 'silver')")
             ->paginate($paginate);
 
