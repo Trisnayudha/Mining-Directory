@@ -93,6 +93,6 @@ class CompanyDashboardController extends Controller
         if (!$data) {
             return $this->sendResponse('User not found', [], 404);
         }
-        return $this->sendResponse('Successfully show data', $data, $data['status'] ?? 200);
+        return $this->sendResponse($data['message'] ?? 'Successfully show data', $data, $data['status'] ?? 200);
     }
 }
