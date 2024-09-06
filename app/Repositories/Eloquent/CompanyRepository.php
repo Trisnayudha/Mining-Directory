@@ -315,7 +315,7 @@ class CompanyRepository implements CompanyRepositoryInterface
     }
 
 
-    public function findDetail($slug)
+    public function findDetail($slug, $id)
     {
         $query = $this->model->where('slug', $slug)->select(
             'company.id',
@@ -344,6 +344,11 @@ class CompanyRepository implements CompanyRepositoryInterface
                 'instagram' => 'https://www.instagram.com/?url=' . urlencode($url), // Instagram tidak memiliki API khusus share, Anda bisa arahkan ke homepage
             ];
         }
+        $findFavorite = null;
+        if ($id) {
+            $findFavorite = $this->companyFavorite->where('users_id', $id)->where('company_id', $query->id)->first();
+        }
+        $query->is_favorite = $findFavorite ? 1 : 0;
         return $query;
     }
 

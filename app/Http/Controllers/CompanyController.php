@@ -42,7 +42,7 @@ class CompanyController extends Controller
             // Token tidak ada atau tidak valid, biarkan $userId tetap null
         }
 
-        $data = $this->company->findDetail($slug);
+        $data = $this->company->findDetail($slug, $userId);
 
         // Log company detail view
         if ($data && $userId) {

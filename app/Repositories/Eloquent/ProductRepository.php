@@ -156,7 +156,7 @@ class ProductRepository implements ProductRepositoryInterface
         if ($id) {
             $findFavorite = $this->productFavorite->where('users_id', $id)->where('product_id', $product->id)->first();
         }
-        $product->isFavorite = $findFavorite ? 1 : 0;
+        $product->is_favorite = $findFavorite ? 1 : 0;
 
         return $product;
     }

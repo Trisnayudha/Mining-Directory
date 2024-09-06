@@ -120,7 +120,7 @@ class VideosRepository implements VideosRepositoryInterface
         if ($id) {
             $findFavorite = $this->videosFavorite->where('users_id', $id)->where('video_id', $video->id)->first();
         }
-        $video->isFavorite = $findFavorite ? 1 : 0;
+        $video->is_favorite = $findFavorite ? 1 : 0;
         return $video;
     }
 

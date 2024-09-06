@@ -126,7 +126,7 @@ class ProjectRepository implements ProjectRepositoryInterface
         if ($id) {
             $findFavorite = $this->projectFavorite->where('users_id', $id)->where('project_id', $project->id)->first();
         }
-        $project->isFavorite = $findFavorite ? 1 : 0;
+        $project->is_favorite = $findFavorite ? 1 : 0;
         return $project;
     }
 

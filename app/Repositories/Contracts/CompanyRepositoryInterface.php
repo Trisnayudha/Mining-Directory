@@ -8,7 +8,7 @@ interface CompanyRepositoryInterface
 {
     public function findHome();
     public function findList($limit);
-    public function findDetail($slug);
+    public function findDetail($slug, $id);
     public function findDetailSection($slug, $section);
     public function findSearch($search);
     public function addFavorite($request, $id);

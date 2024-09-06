@@ -121,7 +121,7 @@ class NewsRepository implements NewsRepositoryInterface
         if ($id) {
             $findFavorite = $this->newsFavorite->where('users_id', $id)->where('news_id', $news->id)->first();
         }
-        $news->isFavorite = $findFavorite ? 1 : 0;
+        $news->is_favorite = $findFavorite ? 1 : 0;
 
         return $news;
     }

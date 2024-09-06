@@ -110,7 +110,7 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     public function checkCompany($id)
     {
-        $data = $this->company->where('id', $id)->select('id', 'company_name', 'package', 'image')->first();
+        $data = $this->company->where('id', $id)->select('id', 'company_name', 'package', 'image', 'email')->first();
         $data['package'] = $data['package'] ?? 'free';
         return $data;
     }

@@ -114,7 +114,7 @@ class MediaRepository implements MediaRepositoryInterface
         if ($id) {
             $findFavorite = $this->mediaResourceFavorite->where('users_id', $id)->where('media_resource_id', $media->id)->first();
         }
-        $media->isFavorite = $findFavorite ? 1 : 0;
+        $media->is_favorite = $findFavorite ? 1 : 0;
 
         return $media;
     }
