@@ -6,6 +6,7 @@ use App\Models\ClaimCompany;
 use App\Repositories\Contracts\ClaimCompanyRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\EmailSender;
 
 class ClaimCompanyRepository implements ClaimCompanyRepositoryInterface
 {
@@ -17,14 +18,13 @@ class ClaimCompanyRepository implements ClaimCompanyRepositoryInterface
     }
 
     /**
-     * Store claim company data.
+     * Store claim company data and send email notifications.
      *
      * @param \Illuminate\Http\Request $request
      * @return ClaimCompany
      */
     public function claim($request)
     {
-        // Using DB transaction in case any error occurs during the insert operation
         DB::beginTransaction();
         try {
             // Create a new ClaimCompany instance and save it
@@ -51,18 +51,67 @@ class ClaimCompanyRepository implements ClaimCompanyRepositoryInterface
                 'company_website' => $request->input('company_website'),
             ]);
 
-            // Commit the transaction
             DB::commit();
 
-            // Return the created ClaimCompany model instance
+            // Send email notification to the user
+            $this->sendClaimNotification($claimCompany);
+
+            // Send notification email to the admin
+            $this->sendAdminNotification($claimCompany);
+
             return $claimCompany;
         } catch (\Exception $e) {
-            // Rollback the transaction in case of error
             DB::rollBack();
             Log::error('Error storing claim company data: ' . $e->getMessage());
-
-            // Optionally throw an exception if you want to handle this at a higher level
             throw new \Exception('Error storing claim company data.');
         }
+    }
+
+    /**
+     * Send email notification to the user who submitted the claim.
+     *
+     * @param ClaimCompany $claimCompany
+     * @return void
+     */
+    private function sendClaimNotification($claimCompany)
+    {
+        $emailSender = new EmailSender();
+        $emailSender->template = 'email.claim_notification'; // Assuming you have a view for the email template
+        $emailSender->data = [
+            'full_name' => $claimCompany->full_name,
+            'company_name' => $claimCompany->company_name
+        ];
+        $emailSender->from = 'no-reply@indonesiaminer.com';
+        $emailSender->name_sender = 'Indonesia Miner';
+        $emailSender->to = $claimCompany->email;
+        $emailSender->subject = 'Your Company Claim is Being Processed';
+
+        $emailSender->sendEmail();
+    }
+
+    /**
+     * Send email notification to the admin with claim details.
+     *
+     * @param ClaimCompany $claimCompany
+     * @return void
+     */
+    private function sendAdminNotification($claimCompany)
+    {
+        $emailSender = new EmailSender();
+        $emailSender->template = 'email.claim_admin_notification'; // Assuming you have a view for the email template
+        $emailSender->data = [
+            'full_name' => $claimCompany->full_name,
+            'position_title' => $claimCompany->position_title,
+            'company_name' => $claimCompany->company_name,
+            'email' => $claimCompany->email,
+            'company_phone_number' => $claimCompany->company_phone_number,
+            'company_category' => $claimCompany->company_category
+        ];
+        $emailSender->from = 'no-reply@indonesiaminer.com';
+        $emailSender->name_sender = 'Indonesia Miner';
+        $emailSender->to = 'yudha@indonesiaminer.com';
+        $emailSender->subject = 'New Company Claim Submission';
+
+        $emailSender->sendEmail();
     }
 }
