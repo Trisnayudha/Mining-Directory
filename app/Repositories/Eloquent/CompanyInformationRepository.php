@@ -62,17 +62,13 @@ class CompanyInformationRepository implements CompanyInformationRepositoryInterf
                 // Create a new Intervention Image instance from the uploaded file
                 $compressedImage = Image::make(storage_path('app/public/company-banner/' . $imageName));
 
-                // Resize the image to a maximum width of 400 while maintaining aspect ratio
-                $compressedImage->resize(400, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-
-                // Save the resized image
+                // Save the image without resizing
                 $compressedImage->save(storage_path('app/public/company-banner/' . $imageName));
+
                 $data['banner_image'] = url($dbPathBanner);
             }
         }
+
         // Update data user tanpa password
         $user->update($data);
 
