@@ -91,6 +91,8 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
     $router->get('company/section/{slug}', ['uses' => 'CompanyController@sectionDetail']);
     $router->post('company/inquiry', ['uses' => 'CompanyController@addInquiry']);
 
+    //Claim Company
+    $router->post('company/claim', ['uses' => 'ClaimCompanyController@store']);
     //users
     $router->group(['middleware' => 'auth'], function () use ($router) {
         //Profile
