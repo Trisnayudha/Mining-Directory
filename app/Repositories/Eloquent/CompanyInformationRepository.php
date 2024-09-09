@@ -49,7 +49,7 @@ class CompanyInformationRepository implements CompanyInformationRepositoryInterf
 
                 // Save the resized image
                 $compressedImage->save(storage_path('app/public/company/' . $imageName));
-                $user->image = url($dbPath);
+                $data->image = url($dbPath);
             }
         }
         if ($request->hasFile('banner_image')) {
@@ -70,7 +70,7 @@ class CompanyInformationRepository implements CompanyInformationRepositoryInterf
 
                 // Save the resized image
                 $compressedImage->save(storage_path('app/public/company-banner/' . $imageName));
-                $user->banner_image = url($dbPathBanner);
+                $data->banner_image = url($dbPathBanner);
             }
         }
         // Update data user tanpa password
