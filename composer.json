@@ -7,6 +7,7 @@
     "require": {
         "php": "^7.3|^8.0",
         "darkaonline/swagger-lume": "^10.1",
+        "fabpot/goutte": "^4.0",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.8",
         "illuminate/mail": "^8.83",
@@ -14,7 +15,8 @@
         "laravel/lumen-framework": "^8.3.1",
         "laravel/tinker": "^2.9",
         "league/flysystem": "1.1",
-        "tymon/jwt-auth": "^1.0"
+        "tymon/jwt-auth": "^1.0",
+        "xendit/xendit-php": "^2.19"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

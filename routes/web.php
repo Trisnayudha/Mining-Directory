@@ -41,6 +41,12 @@ $router->get('countries/{countryId}/states/{stateId}/cities', 'CountryStateCityC
 
 $router->group(['middleware' => 'log.user.activity'], function () use ($router) {
 
+    $router->post('/callback/invoice', 'XenditController@handleInvoice');
+    $router->post('/callback/disbursement', 'XenditController@handleDisbursement');
+    $router->post('/callback/virtual-account', 'XenditController@handleVirtualAccount');
+    $router->post('/callback/ewallet', 'XenditController@handleEWallet');
+
+
     $router->get('home/carousel', ['uses' => 'HomeController@carousel']);
     $router->get('home/statistic', ['uses' => 'HomeController@statistic']);
     $router->get('home/category', ['uses' => 'HomeController@category']);
@@ -113,6 +119,9 @@ $router->group(['middleware' => 'log.user.activity'], function () use ($router) 
     //company
     $router->group(['middleware' => 'company.auth'], function () use ($router) {
         $router->group(['prefix' => 'api/company'], function () use ($router) {
+
+            $router->post('/payment/xendit', ['uses' => 'PaymentController@payment']);
+
             $router->get('/check-company', ['uses' => 'CompanyDashboardController@checkCompany']);
             $router->get('/dashboard-card', ['uses' => 'CompanyDashboardController@card']);
             $router->get('/dashboard-list-of-visitor', ['uses' => 'CompanyDashboardController@listVisitor']);
