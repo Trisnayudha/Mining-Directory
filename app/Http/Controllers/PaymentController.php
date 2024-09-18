@@ -64,6 +64,7 @@ class PaymentController extends Controller
                 'payer_email' => $company->email,
                 'description' => $description,
                 'amount' => $amount,
+                'success_redirect_url' => 'https://miner-directory.com/dashboard', // Tambahkan redirect URL di sini
             ];
             Xendit::setApiKey($this->secretKey);
             // Membuat invoice menggunakan Xendit SDK
