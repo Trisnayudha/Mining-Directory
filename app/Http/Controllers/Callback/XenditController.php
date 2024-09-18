@@ -55,21 +55,26 @@ class XenditController extends Controller
         $status = $request->input('status');
 
         // Temukan invoice di database berdasarkan external_id
-        $invoice = PaymentInvoice::where('external_id', $external_id)->first();
+        $invoice = \App\Models\PaymentInvoice::where('external_id', $external_id)->first();
 
         // Jika invoice ditemukan, perbarui status dan informasi lainnya
         if ($invoice) {
-            // Konversi expiry_date dari ISO 8601 ke format MySQL
-            $expiryDate = (new DateTime($request->input('expiry_date')))->format('Y-m-d H:i:s');
+            // Konversi expiry_date dan paid_at dari ISO 8601 ke format MySQL
+            $expiryDate = (new \DateTime($request->input('expiry_date')))->format('Y-m-d H:i:s');
+            $paidAt = null;
+
+            if ($request->input('paid_at')) {
+                $paidAt = (new \DateTime($request->input('paid_at')))->format('Y-m-d H:i:s');
+            }
 
             $invoice->update([
                 'status' => $status,
                 'paid_amount' => $request->input('paid_amount', $invoice->paid_amount),
                 'bank_code' => $request->input('bank_code', $invoice->bank_code),
-                'paid_at' => $request->input('paid_at', $invoice->paid_at),
+                'paid_at' => $paidAt, // Pastikan sudah dikonversi ke format MySQL
                 'fees_paid_amount' => $request->input('fees_paid_amount', $invoice->fees_paid_amount),
-                'updated_at' => date('Y-m-d H:i:s'), // Menggunakan fungsi date() PHP
                 'expiry_date' => $expiryDate, // Konversi expiry_date ke format MySQL
+                'updated_at' => date('Y-m-d H:i:s'), // Menggunakan fungsi date() PHP
             ]);
 
             // Menggunakan sendResponse untuk mengirim response sukses
@@ -84,6 +89,7 @@ class XenditController extends Controller
             'request_data' => $request->all()
         ], 404);
     }
+
 
 
     // Handle Virtual Account callback
