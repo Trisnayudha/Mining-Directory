@@ -41,7 +41,7 @@ $router->get('countries/{countryId}/states/{stateId}/cities', 'CountryStateCityC
 
 $router->group(['middleware' => 'log.user.activity'], function () use ($router) {
 
-    $router->post('/callback/invoice', 'Callback\XenditController@handleInvoice');
+    $router->post('/callback/invoice', 'Callback\XenditController@handlePaymentCallback');
     $router->post('/callback/disbursement', 'Callback\XenditController@handleDisbursement');
     $router->post('/callback/virtual-account', 'Callback\XenditController@handleVirtualAccount');
     $router->post('/callback/ewallet', 'Callback\XenditController@handleEWallet');
