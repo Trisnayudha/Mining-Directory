@@ -94,6 +94,7 @@ class ProjectRepository implements ProjectRepositoryInterface
                 'company.package',
                 'company.slug as company_slug',
                 'company.image as company_image',
+                'company.verify_company',
                 'projects.title',
                 'projects.views',
                 'projects.download',

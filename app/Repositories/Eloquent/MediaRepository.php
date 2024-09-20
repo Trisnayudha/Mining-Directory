@@ -82,6 +82,7 @@ class MediaRepository implements MediaRepositoryInterface
                 'media_resource.id',
                 'company.company_name',
                 'company.package',
+                'company.verify_company',
                 'company.slug as company_slug',
                 'media_resource.title',
                 'media_resource.views',

@@ -88,6 +88,7 @@ class VideosRepository implements VideosRepositoryInterface
                 'company.company_name',
                 'company.slug as company_slug',
                 'company.package',
+                'company.verify_company',
                 'company.image as company_image',
                 'videos.title',
                 'videos.slug',

@@ -89,6 +89,7 @@ class NewsRepository implements NewsRepositoryInterface
                 'company.slug as company_slug',
                 'company.image as company_image',
                 'company.id as company_id',
+                'company.verify_company',
                 'news.views',
                 'news.date_news',
                 'news.title',

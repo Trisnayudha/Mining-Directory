@@ -118,6 +118,7 @@ class ProductRepository implements ProductRepositoryInterface
                 'company.slug as company_slug',
                 'company.id as company_id',
                 'company.package',
+                'company.verify_company',
                 'company.image as company_image',
                 'products.title',
                 'products.slug',
