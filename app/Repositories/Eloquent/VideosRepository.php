@@ -25,8 +25,15 @@ class VideosRepository implements VideosRepositoryInterface
 
     public function findHome()
     {
-        return $this->videos->join('company', 'company.id', 'videos.company_id')->select('videos.*', 'company.company_name')->orderby('id', 'desc')->take(4)->get();
+        return $this->videos
+            ->join('company', 'company.id', '=', 'videos.company_id')
+            ->whereIn('company.package', ['platinum', 'gold', 'silver'])
+            ->select('videos.*', 'company.company_name')
+            ->inRandomOrder() // Mengacak urutan hasil
+            ->take(4) // Mengambil 4 hasil secara acak
+            ->get();
     }
+
     public function findSearch($request)
     {
         $search = $request->search;
