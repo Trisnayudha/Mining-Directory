@@ -30,7 +30,7 @@ class VideosRepository implements VideosRepositoryInterface
             ->whereIn('company.package', ['platinum', 'gold', 'silver'])
             ->select('videos.*', 'company.company_name')
             ->inRandomOrder() // Mengacak urutan hasil
-            ->take(4) // Mengambil 4 hasil secara acak
+            ->take(3) // Mengambil 4 hasil secara acak
             ->get();
     }
 
