@@ -398,115 +398,132 @@ class CompanyRepository implements CompanyRepositoryInterface
 
     public function findSearch($request)
     {
-        $search = $request->search;
-        $category_name = $request->category_id; // Assume this is the name of the category
-        $sub_category_name = $request->sub_category_id; // Assume this is the name of the sub-category
-        $paginate = $request->paginate ?? 12; // Default to 12 if not provided
-        $location = $request->location;
-        $package = $request->package;
+        $search          = $request->search;
+        $categoryParam   = $request->category_id;     // bisa ID atau nama
+        $subCategoryParam = $request->sub_category_id; // bisa ID atau nama
+        $paginate        = $request->paginate ?? 12;
+        $location        = $request->location;
+        $package         = $request->package;
 
-        $query = $this->model->newQuery();
-        // Join with category and subcategory tables
-        $query->leftJoin('company_category_list', 'company_category_list.company_id', '=', 'company.id')
-            ->leftJoin('md_category_company', 'company_category_list.category_id', '=', 'md_category_company.id')
-            ->leftJoin('company_sub_category_list', 'company_sub_category_list.company_id', '=', 'company.id')
-            ->leftJoin('md_sub_category_company', 'company_sub_category_list.sub_category_id', '=', 'md_sub_category_company.id');
+        // base query: ambil 1 row per company (tanpa duplikasi)
+        $query = $this->model->newQuery()
+            ->from('company')
+            ->select([
+                'company.id',
+                'company.image',
+                'company.company_name',
+                'company.description',
+                'company.location',
+                'company.video',
+                'company.slug',
+                'company.verify_company',
+                'company.package',
+            ]);
 
-        // Search for company_name, description, value_1, value_2, value_3
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('company.company_name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('company.description', 'LIKE', '%' . $search . '%')
-                    ->orWhere('company.value_1', 'LIKE', '%' . $search . '%')
-                    ->orWhere('company.value_2', 'LIKE', '%' . $search . '%')
-                    ->orWhere('company.value_3', 'LIKE', '%' . $search . '%');
+        // ambil 1 kategori (alfabet terkecil) via subquery -> tidak perlu GROUP BY
+        $query->selectSub(function ($q) {
+            $q->from('company_category_list as ccl')
+                ->join('md_category_company as mc', 'mc.id', '=', 'ccl.category_id')
+                ->whereColumn('ccl.company_id', 'company.id')
+                ->selectRaw('MIN(mc.name)');
+        }, 'category');
+
+        // join hanya untuk filter (hindari duplikasi select) — gunakan exists subquery
+        if (!empty($categoryParam)) {
+            $query->whereExists(function ($q) use ($categoryParam) {
+                $q->from('company_category_list as ccl')
+                    ->join('md_category_company as mc', 'mc.id', '=', 'ccl.category_id')
+                    ->whereColumn('ccl.company_id', 'company.id');
+
+                if (is_numeric($categoryParam)) {
+                    $q->where('mc.id', $categoryParam);
+                } else {
+                    $q->where('mc.name', 'LIKE', '%' . $categoryParam . '%');
+                }
             });
         }
 
-        // Filter by location
+        if (!empty($subCategoryParam)) {
+            $query->whereExists(function ($q) use ($subCategoryParam) {
+                $q->from('company_sub_category_list as cscl')
+                    ->join('md_sub_category_company as msc', 'msc.id', '=', 'cscl.sub_category_id')
+                    ->whereColumn('cscl.company_id', 'company.id');
+
+                if (is_numeric($subCategoryParam)) {
+                    $q->where('msc.id', $subCategoryParam);
+                } else {
+                    $q->where('msc.name', 'LIKE', '%' . $subCategoryParam . '%');
+                }
+            });
+        }
+
+        // filter teks dasar
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $like = '%' . $search . '%';
+                $q->where('company.company_name', 'LIKE', $like)
+                    ->orWhere('company.description', 'LIKE', $like)
+                    ->orWhere('company.value_1', 'LIKE', $like)
+                    ->orWhere('company.value_2', 'LIKE', $like)
+                    ->orWhere('company.value_3', 'LIKE', $like);
+            });
+        }
+
+        // lokasi
         if (!empty($location)) {
             $query->where('company.location', 'LIKE', '%' . $location . '%');
         }
 
-        // Filter by category name if provided
-        if (!empty($category_name)) {
-            $query->where('md_category_company.name', 'LIKE', '%' . $category_name . '%');
-        }
-
-        // Filter by sub-category name if provided
-        if (!empty($sub_category_name)) {
-            $query->where('md_sub_category_company.name', 'LIKE', '%' . $sub_category_name . '%');
-        }
-
-        // Filter by package if provided
+        // package
         if (!empty($package)) {
-            $query->where('company.package', '=', $package);
+            $query->where('company.package', $package);
         }
 
-        // Order results to prioritize search fields
-        $query->orderByRaw("
+        // ranking relevansi — pasang hanya jika ada search
+        if (!empty($search)) {
+            $like = '%' . $search . '%';
+            $query->orderByRaw("
             CASE
                 WHEN company.company_name LIKE ? THEN 1
                 WHEN company.description LIKE ? THEN 2
-                WHEN company.location LIKE ? THEN 3
-                ELSE 4
-            END", [
-            '%' . $search . '%',
-            '%' . $search . '%',
-            '%' . $search . '%',
-            '%' . $search . '%',
-            '%' . $search . '%',
-            '%' . $location . '%'
-        ]);
+                ELSE 3
+            END
+        ", [$like, $like]);
+        }
 
-        $results = $query->groupBy(
-            'company.image',
-            'company.company_name',
-            'company.description',
-            'company.location',
-            'company.video',
-            'company.slug',
-            'company.verify_company',
-            'company.package'
-        )->get([
-            'company.image',
-            'company.company_name',
-            'company.description',
-            'company.location',
-            'company.video',
-            'company.slug',
-            'company.verify_company',
-            'company.package',
-            DB::raw('MIN(md_category_company.name) as category'), // Get the first category alphabetically
-        ]);
+        // (opsional) urutkan package priority setelah relevansi
+        $query->orderByRaw("FIELD(company.package, 'platinum','gold','silver','free')");
 
-        // Classify results into packages
-        $platinum = $results->where('package', 'platinum');
-        $gold = $results->where('package', 'gold');
-        $silver = $results->where('package', 'silver');
-        $free = $results->where('package', 'free');
+        // DISTINCT per company
+        $query->distinct('company.id');
 
-        // Paginate each package
-        $platinum_paginated = $this->paginateCollection($platinum, $paginate);
-        $gold_paginated = $this->paginateCollection($gold, $paginate);
-        $silver_paginated = $this->paginateCollection($silver, $paginate);
-        $free_paginated = $this->paginateCollection($free, $paginate);
+        // === PAGINATE DI LEVEL COMPANY ===
+        $paginated = $query->paginate($paginate);
 
-        // Prepare payload
-        $payload = [
-            'platinum' => $platinum_paginated->items(),
-            'gold' => $gold_paginated->items(),
-            'silver' => $silver_paginated->items(),
-            'free' => $free_paginated->items(),
-            'current_page' => $platinum_paginated->currentPage(), // Assuming all packages use the same pagination settings
-            'total' => $results->count(), // Total count of all results
-            'per_page' => $paginate,
-            'last_page' => $platinum_paginated->lastPage(), // Assuming all packages use the same pagination settings
-            'from' => $platinum_paginated->firstItem(), // Assuming all packages use the same pagination settings
-            'to' => $platinum_paginated->lastItem() // Assuming all packages use the same pagination settings
+        // group hasil halaman saat ini ke paket
+        $items = $paginated->getCollection();
+
+        $grouped = [
+            'platinum' => $items->where('package', 'platinum')->values(),
+            'gold'     => $items->where('package', 'gold')->values(),
+            'silver'   => $items->where('package', 'silver')->values(),
+            'free'     => $items->where('package', 'free')->values(),
         ];
 
-        return $payload;
+        // payload dengan meta paginate AKURAT (sesuai jumlah company)
+        return [
+            'platinum'     => $grouped['platinum'],
+            'gold'         => $grouped['gold'],
+            'silver'       => $grouped['silver'],
+            'free'         => $grouped['free'],
+
+            'current_page' => $paginated->currentPage(),
+            'per_page'     => $paginated->perPage(),
+            'last_page'    => $paginated->lastPage(),
+            'from'         => $paginated->firstItem(),
+            'to'           => $paginated->lastItem(),
+            'total'        => $paginated->total(),     // total company yang match
+        ];
     }
 
     protected function paginateCollection($items, $perPage)
