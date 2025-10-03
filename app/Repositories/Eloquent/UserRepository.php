@@ -283,6 +283,10 @@ class UserRepository implements UserRepositoryInterface
     private function favoriteProduct($id)
     {
         $query = ProductFavorite::join('products', 'products.id', '=', 'products_favorite.product_id')
+            ->leftJoin('products_asset', function ($join) {
+                $join->on('products_asset.product_id', '=', 'products.id')
+                    ->where('products_asset.asset_type', '=', 'png');
+            })
             ->join('company', 'company.id', '=', 'products.company_id')
             ->join('md_category_company', 'md_category_company.id', '=', 'products_category_list.category_id')
             ->select(
