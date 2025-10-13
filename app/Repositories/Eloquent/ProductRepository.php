@@ -60,7 +60,7 @@ class ProductRepository implements ProductRepositoryInterface
         $query->join('company', 'company.id', '=', 'products.company_id')
             ->leftJoin('products_asset', function ($join) {
                 $join->on('products_asset.product_id', '=', 'products.id')
-                    ->where('products_asset.asset_type', '=', 'png');
+                    ->where('products_asset.asset_type', '=', 'image');
             })
             ->leftJoin('products_category_list', 'products_category_list.product_id', '=', 'products.id')
             ->leftJoin('md_category_company', 'products_category_list.category_id', '=', 'md_category_company.id')
