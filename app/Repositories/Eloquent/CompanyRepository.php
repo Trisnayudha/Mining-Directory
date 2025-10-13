@@ -398,12 +398,17 @@ class CompanyRepository implements CompanyRepositoryInterface
 
     public function findSearch($request)
     {
-        $search = $request->search;
-        $category_name = $request->category_id;      // ini sebenernya "name" bukan ID
+        $search            = $request->search;
+        $category_name     = $request->category_id;
         $sub_category_name = $request->sub_category_id;
-        $paginate = (int) ($request->paginate ?? 12);
-        $location = $request->location;
-        $package = $request->package;
+        $paginate          = (int) ($request->paginate ?? 12);
+        $location          = $request->location;
+        $package           = $request->package;
+
+        // Ambil huruf sort[]
+        $letters = collect((array) $request->input('sort', []))
+            ->filter(fn($c) => is_string($c) && $c !== '')
+            ->map(fn($c) => mb_strtoupper(mb_substr($c, 0, 1)));
 
         $query = $this->model->newQuery();
 
@@ -439,26 +444,38 @@ class CompanyRepository implements CompanyRepositoryInterface
             $query->where('md_sub_category_company.name', 'LIKE', "%{$sub_category_name}%");
         }
 
-        // PACKAGE (exact, sesuai data kamu)
+        // PACKAGE
         if (!empty($package)) {
             $query->where('company.package', '=', $package);
         }
 
-        // ORDERING — cukup 3 placeholder (company_name, description, location)
-        if (!empty($search)) {
-            $like = "%{$search}%";
-            $locLike = !empty($location) ? "%{$location}%" : $like; // fallback
-            $query->orderByRaw("
-            CASE
-                WHEN company.company_name LIKE ? THEN 1
-                WHEN company.description  LIKE ? THEN 2
-                WHEN company.location     LIKE ? THEN 3
-                ELSE 4
-            END
-        ", [$like, $like, $locLike]);
+        // ====== FILTER SORT (hanya kalau dikirim) ======
+        if ($letters->isNotEmpty()) {
+            $query->whereIn(
+                DB::raw("LEFT(UPPER(company.company_name), 1)"),
+                $letters->values()->all()
+            );
+
+            // Urutkan abjad karena sort digunakan
+            $query->orderBy('company.company_name', 'ASC');
+        } else {
+            // ====== ORDER DEFAULT (biarkan seperti sebelumnya) ======
+            if (!empty($search)) {
+                $like    = "%{$search}%";
+                $locLike = !empty($location) ? "%{$location}%" : $like;
+                $query->orderByRaw("
+                CASE
+                    WHEN company.company_name LIKE ? THEN 1
+                    WHEN company.description  LIKE ? THEN 2
+                    WHEN company.location     LIKE ? THEN 3
+                    ELSE 4
+                END
+            ", [$like, $like, $locLike]);
+            }
+            // kalau tidak ada search, tidak pakai order apapun
         }
 
-        // DISTINCT/GROUP — kamu pakai GROUP BY lebar untuk dedup karena join
+        // GROUP & SELECT
         $results = $query->groupBy(
             'company.image',
             'company.company_name',
@@ -480,19 +497,18 @@ class CompanyRepository implements CompanyRepositoryInterface
             DB::raw('MIN(md_category_company.name) as category'),
         ]);
 
-        // SPLIT per package
+        // SPLIT PER PACKAGE
         $platinum = $results->where('package', 'platinum')->values();
         $gold     = $results->where('package', 'gold')->values();
         $silver   = $results->where('package', 'silver')->values();
         $free     = $results->where('package', 'free')->values();
 
-        // PAGINATE per package (pakai helper collection pagination kamu)
+        // PAGINATE
         $platinum_paginated = $this->paginateCollection($platinum, $paginate);
         $gold_paginated     = $this->paginateCollection($gold, $paginate);
         $silver_paginated   = $this->paginateCollection($silver, $paginate);
         $free_paginated     = $this->paginateCollection($free, $paginate);
 
-        // ======= META: gunakan yang paling besar di antara semua paket =======
         $lastPage = max(
             $platinum_paginated->lastPage(),
             $gold_paginated->lastPage(),
@@ -500,11 +516,9 @@ class CompanyRepository implements CompanyRepositoryInterface
             $free_paginated->lastPage()
         );
 
-        // current_page: samakan untuk semua (ambil dari salah satu paginator)
-        $currentPage = $platinum_paginated->currentPage(); // sama saja dengan lainnya
+        $currentPage = $platinum_paginated->currentPage();
         $perPage     = $paginate;
 
-        // from/to: ini tricky karena tiap paket beda. Kalau frontend butuh angka, pakai paket dengan item terbanyak di halaman ini supaya “masuk akal”.
         $paginatorsByCountDesc = collect([
             $platinum_paginated,
             $gold_paginated,
@@ -516,10 +530,8 @@ class CompanyRepository implements CompanyRepositoryInterface
         $from = $firstPaginatorWithItems->firstItem();
         $to   = $firstPaginatorWithItems->lastItem();
 
-        // total semua company (hasil dedup via GROUP)
         $total = $results->count();
 
-        // RESPONSE (struktur lama dipertahankan)
         return [
             'platinum'     => $platinum_paginated->items(),
             'gold'         => $gold_paginated->items(),
@@ -527,12 +539,13 @@ class CompanyRepository implements CompanyRepositoryInterface
             'free'         => $free_paginated->items(),
             'current_page' => $currentPage,
             'per_page'     => $perPage,
-            'last_page'    => $lastPage,   // <— sekarang ngikut paket terpanjang (mis. free)
+            'last_page'    => $lastPage,
             'from'         => $from,
             'to'           => $to,
             'total'        => $total,
         ];
     }
+
 
     protected function paginateCollection($items, $perPage)
     {
